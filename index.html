@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Regret x AI Study</title>
+
+    <script src="https://unpkg.com/jspsych@8.2.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-likert@2.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@2.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-instructions@2.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-multi-choice@2.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.1.0"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+    <link href="https://unpkg.com/jspsych@8.2.2/css/jspsych.css" rel="stylesheet" />
+
+    <!-- helper files (same folder as this index.html) -->
+    <script src="consent.js"></script>
+    <script src="instructions.js"></script>
+    <script src="profile-write-plugin.js"></script>
+    <script src="feedback_demographics.js"></script>
+
+    <style>
+      :root{
+        --accent:#ff4d6d; --accent2:#ff7a59; --ink:#241b1d; --muted:rgba(36,27,29,.58);
+        --card:#ffffff; --line:rgba(36,27,29,.10); --soft:rgba(255,77,109,.07);
+      }
+      html,body{height:100%;}
+      body{
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color:var(--ink); text-align:center;
+        background: radial-gradient(1200px 600px at 50% -10%, #ffe6ea 0%, rgba(255,230,234,0) 60%),
+                    linear-gradient(165deg, #fff4ec 0%, #ffeef0 55%, #fde7f0 100%);
+        background-attachment: fixed;
+      }
+      .jspsych-content{ max-width:none; }
+
+      /* ---------- buttons ---------- */
+      .jspsych-btn, .btn-primary{
+        font:inherit; font-weight:700; color:#fff; border:none; cursor:pointer;
+        padding:13px 22px; border-radius:999px;
+        background:linear-gradient(135deg, var(--accent), var(--accent2));
+        box-shadow:0 10px 22px rgba(255,77,109,.28); transition:transform .06s ease, box-shadow .2s, opacity .2s;
+      }
+      .jspsych-btn:hover, .btn-primary:hover{ box-shadow:0 14px 28px rgba(255,77,109,.34); }
+      .jspsych-btn:active, .btn-primary:active{ transform:translateY(1px); }
+      .jspsych-btn:disabled, .btn-primary:disabled{ opacity:.45; cursor:default; box-shadow:none; }
+
+      /* ---------- app screen shell ---------- */
+      .app-screen{
+        width:min(94vw, 460px); margin:0 auto; text-align:left; background:var(--card);
+        border-radius:26px; box-shadow:0 24px 60px rgba(255,77,109,.16), 0 2px 10px rgba(0,0,0,.05);
+        overflow:hidden; border:1px solid var(--line);
+      }
+      .app-chrome{ display:flex; align-items:center; justify-content:space-between;
+        padding:14px 18px; border-bottom:1px solid var(--line); background:linear-gradient(180deg,#fff, #fff7f8); }
+      .app-brand{ display:flex; align-items:center; gap:8px; font-weight:800; letter-spacing:.2px; }
+      .brand-badge{ width:28px; height:28px; border-radius:9px; display:grid; place-items:center; color:#fff;
+        background:linear-gradient(135deg, var(--accent), var(--accent2)); box-shadow:0 6px 14px rgba(255,77,109,.35); }
+      .brand-badge .ic-heart{ width:16px; height:16px; }
+      .brand-name{ font-size:18px; }
+      .app-step{ font-size:12px; color:var(--muted); font-weight:600; }
+      .app-body{ padding:18px; }
+
+      /* ---------- prompt + answer ---------- */
+      .prompt-card{ background:linear-gradient(135deg,#fff0f3,#fff6ef); border:1px solid var(--line);
+        border-radius:18px; padding:16px 16px 18px; margin-bottom:14px; }
+      .prompt-kicker{ font-size:11px; letter-spacing:.12em; color:var(--accent); font-weight:800; }
+      .prompt-text{ font-size:21px; line-height:1.25; font-weight:800; margin-top:6px; }
+      .answer{ width:100%; min-height:120px; resize:vertical; font:inherit; font-size:16px; line-height:1.5;
+        padding:14px; border-radius:16px; border:1px solid var(--line); box-sizing:border-box; background:#fff;
+        outline:none; transition:border-color .15s, box-shadow .15s; }
+      .answer:focus{ border-color:var(--accent); box-shadow:0 0 0 4px var(--soft); }
+      .answer-row{ display:flex; justify-content:space-between; align-items:center; margin-top:12px; gap:10px; }
+      .answer-count{ color:var(--muted); font-size:13px; }
+
+      /* ---------- AI chat ---------- */
+      .ai-panel{ margin-top:16px; border:1px solid var(--line); border-radius:18px; overflow:hidden; background:#fff; }
+      .ai-head{ font-weight:700; padding:11px 14px; border-bottom:1px solid var(--line);
+        background:linear-gradient(180deg,#fff,#f7f8fb); }
+      .chat{ max-height:240px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:12px;
+        background:#fbfbfd; min-height:44px; }
+      .bubble{ padding:9px 13px; border-radius:16px; max-width:86%; font-size:14px; line-height:1.4; white-space:pre-wrap; }
+      .bubble.user{ align-self:flex-end; color:#fff; border-bottom-right-radius:5px;
+        background:linear-gradient(135deg, var(--accent), var(--accent2)); }
+      .bubble.assistant{ align-self:flex-start; background:#eef1f6; color:#15181f; border-bottom-left-radius:5px; }
+      .bubble.typing{ font-size:18px; letter-spacing:2px; color:rgba(0,0,0,.4); }
+      .bubble-use{ display:inline-block; margin-top:7px; font:inherit; font-size:12px; font-weight:600;
+        padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:#fff; cursor:pointer; color:var(--ink); }
+      .chat-input{ display:flex; gap:8px; padding:10px; border-top:1px solid var(--line); background:#fff; }
+      .chat-input textarea{ flex:1; resize:vertical; font:inherit; font-size:14px; padding:9px;
+        border-radius:12px; border:1px solid var(--line); box-sizing:border-box; outline:none; }
+      .chat-input textarea:focus{ border-color:var(--accent); box-shadow:0 0 0 3px var(--soft); }
+      .chat-send{ font:inherit; padding:0 16px; border-radius:12px; border:none; color:#fff; font-weight:700; cursor:pointer;
+        background:linear-gradient(135deg, var(--accent), var(--accent2)); }
+      .chat-send:disabled{ opacity:.5; cursor:default; }
+
+      /* ---------- analyzing / progress ---------- */
+      .analyze .app-body{ padding:30px 22px 34px; text-align:center; }
+      .analyze-spinner{ width:64px; height:64px; margin:6px auto 14px; color:var(--accent);
+        display:grid; place-items:center; animation:beat 1.1s ease-in-out infinite; }
+      .analyze-spinner .ic-heart{ width:56px; height:56px; filter:drop-shadow(0 8px 16px rgba(255,77,109,.35)); }
+      @keyframes beat{ 0%,100%{transform:scale(1)} 25%{transform:scale(1.14)} 40%{transform:scale(.98)} }
+      .analyze-msg{ font-weight:700; font-size:16px; min-height:22px; }
+      .analyze-bar{ height:12px; border-radius:999px; background:rgba(36,27,29,.10); overflow:hidden; margin:16px 0 8px; }
+      .analyze-bar > span{ display:block; height:100%; width:0%; border-radius:999px;
+        background:linear-gradient(90deg, var(--accent), var(--accent2)); }
+      .analyze-pct{ font-variant-numeric:tabular-nums; font-weight:800; font-size:14px; color:var(--ink); }
+      .analyze-sub{ color:var(--muted); font-size:13px; margin-top:4px; }
+
+      /* ---------- outcome ---------- */
+      .outcome .app-body{ padding:26px 22px 30px; text-align:center; }
+      .outcome-hearts{ color:var(--accent); animation:beat 1.2s ease-in-out 1; }
+      .outcome-hearts .ic-heart{ width:54px; height:54px; filter:drop-shadow(0 10px 18px rgba(255,77,109,.4)); }
+      .outcome-count{ font-size:60px; font-weight:900; line-height:1; margin:6px 0 2px; font-variant-numeric:tabular-nums;
+        background:linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+      .outcome-label{ color:var(--muted); font-weight:600; }
+      .outcome-badge{ display:inline-block; margin-top:12px; padding:6px 14px; border-radius:999px; font-size:13px; font-weight:800; }
+      .outcome-badge.up{ background:rgba(26,127,55,.12); color:#1a7f37; }
+      .outcome-badge.down{ background:rgba(36,27,29,.08); color:var(--muted); }
+      .outcome-compare{ margin:18px auto 8px; max-width:330px; text-align:left; }
+      .oc-row{ display:flex; align-items:center; gap:10px; margin:8px 0; font-size:13px; }
+      .oc-row > span{ width:54px; color:var(--muted); }
+      .oc-row > b{ width:28px; text-align:right; font-variant-numeric:tabular-nums; }
+      .oc-track{ flex:1; height:12px; border-radius:999px; background:rgba(36,27,29,.08); overflow:hidden; }
+      .oc-track > span{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+      .oc-track > span.muted{ background:rgba(36,27,29,.32); }
+      .outcome-sub{ color:var(--muted); font-size:13px; margin-top:10px; }
+
+      /* ---------- instructions ---------- */
+      .instr-wrap{ max-width:680px; margin:0 auto; text-align:center; }
+      .instr-title{ font-size:24px; font-weight:900; margin:6px 0 12px; }
+      .instr-text{ font-size:16px; line-height:1.6; color:rgba(36,27,29,.85); }
+      .instr-text p{ margin:10px auto; max-width:600px; }
+      .instr-note{ margin-top:14px; padding:12px 14px; border-radius:14px; border:1px solid var(--line);
+        background:#fff; color:rgba(36,27,29,.78); }
+
+      /* ---------- rating sliders ---------- */
+      .regret-card{ width:min(94vw,560px); margin:0 auto; padding:22px; text-align:left; background:var(--card);
+        border:1px solid var(--line); border-radius:22px; box-shadow:0 18px 44px rgba(255,77,109,.12); }
+      .regret-title{ margin:0 0 8px; font-size:20px; font-weight:800; }
+      .regret-meta{ margin:0 0 14px; color:rgba(36,27,29,.75); line-height:1.4; font-size:14px; }
+      .pw-quote{ margin:8px 0; padding:10px 12px; border-left:3px solid var(--accent);
+        background:var(--soft); border-radius:8px; white-space:pre-wrap; font-style:italic; }
+      .regret-item{ padding:14px; border-radius:14px; background:#fbfbfd; border:1px solid var(--line); margin:12px 0; }
+      .regret-prompt{ margin:0 0 10px; font-weight:600; line-height:1.3; }
+      .regret-row{ display:flex; gap:12px; align-items:center; }
+      .regret-value-pill{ min-width:52px; padding:6px 10px; border-radius:999px; text-align:center;
+        font-variant-numeric:tabular-nums; font-weight:800; color:#fff;
+        background:linear-gradient(135deg,var(--accent),var(--accent2)); }
+      .regret-ends{ display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:var(--muted); }
+      .regret-hint{ margin-top:12px; font-size:13px; color:var(--muted); }
+      .regret-open textarea{ width:100%; box-sizing:border-box; padding:10px; border-radius:12px;
+        border:1px solid var(--line); font:inherit; font-size:14px; resize:vertical; }
+      .regret-range{ -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:999px; background:rgba(36,27,29,.16); outline:none; }
+      .regret-range::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%;
+        background:linear-gradient(135deg,var(--accent),var(--accent2)); border:2px solid #fff; box-shadow:0 6px 14px rgba(255,77,109,.4); cursor:pointer; }
+      .regret-range::-moz-range-thumb{ width:20px; height:20px; border-radius:50%;
+        background:var(--accent); border:2px solid #fff; box-shadow:0 6px 14px rgba(255,77,109,.4); cursor:pointer; }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    /**********************************
+     CONFIG
+    ***********************************/
+    const DATAPIPE_EXPERIMENT_ID = "REPLACE_WITH_DATAPIPE_ID";
+    const PROLIFIC_COMPLETION_CODE = "REPLACE_WITH_COMPLETION_CODE";
+    const SAVE_LOCAL_BACKUP = true;          // also download a local CSV (handy while piloting)
+    const REQUIRE_SLIDER_MOVEMENT = true;    // must move every slider before continuing
+    const MIN_CHARS = 15;                    // minimum response length before submit enables
+
+    // ---- AI assistant backend ----
+    // "mock": built-in canned helper (no API key, for piloting)
+    // "proxy": POST {model, system, messages} to your endpoint (server holds the key)
+    // "direct": calls Anthropic from the browser (LOCAL testing only!)
+    const AI_CONFIG = {
+      mode: "proxy",
+      endpoint: "https://spark-proxy.alikhanm.workers.dev/",
+      model: "claude-sonnet-4-6",
+      apiKey: ""
+    };
+    const AI_SYSTEM_PROMPT =
+      "You are a friendly writing assistant helping someone write a short, authentic dating-app profile answer. " +
+      "You can offer a couple of short options and brief feedback. Keep replies concise and conversational. " +
+      "Write in plain text only — do NOT use Markdown: no **bold**, no headers (#), no backticks, no asterisks for bullets. " +
+      "If you give options, write them as short numbered lines (1. 2.) or plain sentences.";
+
+    async function getAssistantReply(messages, systemPrompt) {
+      if (AI_CONFIG.mode === "mock") {
+        await new Promise(r => setTimeout(r, 550));
+        return mockAssistant(messages);
+      }
+      if (AI_CONFIG.mode === "proxy") {
+        const res = await fetch(AI_CONFIG.endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ model: AI_CONFIG.model, system: systemPrompt, messages })
+        });
+        const data = await res.json();
+        return data.text ?? (data.content && data.content[0] && data.content[0].text) ?? "(No response.)";
+      }
+      if (AI_CONFIG.mode === "direct") {
+        const res = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": AI_CONFIG.apiKey,
+            "anthropic-version": "2023-06-01",
+            "anthropic-dangerous-direct-browser-access": "true"
+          },
+          body: JSON.stringify({ model: AI_CONFIG.model, max_tokens: 400, system: systemPrompt, messages })
+        });
+        const data = await res.json();
+        return (data.content && data.content[0] && data.content[0].text) ?? "(No response.)";
+      }
+    }
+    function mockAssistant(messages) {
+      const userTurns = messages.filter(m => m.role === "user").length;
+      if (userTurns <= 1) {
+        return "Happy to help! Two quick directions:\n" +
+               "• Lead with one specific, true detail (skip generic lists).\n" +
+               "• End with a small hook so it's easy to reply to.\n\n" +
+               "Tell me one real detail about you and I'll draft a version.";
+      }
+      return "Here's a tightened version you could use:\n\n" +
+             "“[a short, specific, lightly playful take on your detail]”\n\n" +
+             "Want it warmer, funnier, or shorter?";
+    }
+
+    /**********************************
+     SVG art (inline — no image files)
+    ***********************************/
+    const HEART = '<svg class="ic-heart" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6.716-4.297-9.193-8.06C1.07 10.2 1.86 6.9 4.6 5.6 6.6 4.65 8.9 5.2 10.3 6.85L12 8.8l1.7-1.95C15.1 5.2 17.4 4.65 19.4 5.6c2.74 1.3 3.53 4.6 1.793 7.34C18.716 16.703 12 21 12 21z"/></svg>';
+    const BRAND = '<div class="app-brand"><span class="brand-badge">' + HEART + '</span><span class="brand-name">spark</span></div>';
+
+    /**********************************
+     Prolific params + jsPsych init
+    ***********************************/
+    const urlParams = new URLSearchParams(window.location.search);
+    const PROLIFIC_PID = urlParams.get("PROLIFIC_PID") || "NA";
+    const STUDY_ID = urlParams.get("STUDY_ID") || "NA";
+    const SESSION_ID = urlParams.get("SESSION_ID") || "NA";
+    const PROLIFIC_COMPLETE_URL =
+      "https://app.prolific.com/submissions/complete?cc=" + encodeURIComponent(PROLIFIC_COMPLETION_CODE);
+
+    const jsPsych = initJsPsych();
+    jsPsych.data.addProperties({
+      participant_id: PROLIFIC_PID,
+      prolific_pid: PROLIFIC_PID,
+      prolific_study_id: STUDY_ID,
+      prolific_session_id: SESSION_ID,
+      date_iso: new Date().toISOString()
+    });
+
+    /**********************************
+     PROMPTS + 2 ORDER GROUPS (4 trials each)
+    ***********************************/
+    const PROMPTS = [
+      "You'll instantly get along with me if…",
+      "The thing I overthink the most is…",
+      "My ideal Tuesday night looks like…",
+      "Something I've gotten better at lately…"
+    ];
+
+    // Random allocation to one of two between-subjects order groups:
+    //   Group 1:  AI-   Solo-  AI+   Solo+
+    //   Group 2:  Solo- AI-    Solo+ AI+
+    const GROUPS = {
+      1: [ { ai: 1, win: 0 }, { ai: 0, win: 0 }, { ai: 1, win: 1 }, { ai: 0, win: 1 } ],
+      2: [ { ai: 0, win: 0 }, { ai: 1, win: 0 }, { ai: 0, win: 1 }, { ai: 1, win: 1 } ]
+    };
+    const GROUP = jsPsych.randomization.sampleWithoutReplacement([1, 2], 1)[0];
+    jsPsych.data.addProperties({ order_group: GROUP });
+    const SEQUENCE = GROUPS[GROUP];
+
+    // Outcome (likes) framing — social comparison, content-independent
+    const VIEWERS = 50;
+    const AVG_REF = 7;
+    const WIN_BAND = [12, 19];
+    const LOSS_BAND = [1, 4];
+    const OUT_SCALE = 20; // bar scaling max
+    const randInt = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+
+    // 4 trials, 4 prompts: each prompt used once, randomly assigned to a slot per participant.
+    const promptOrder = jsPsych.randomization.shuffle(PROMPTS.slice());
+    const ASSIGNED = SEQUENCE.map((t, i) => {
+      const likes = t.win ? randInt(WIN_BAND[0], WIN_BAND[1]) : randInt(LOSS_BAND[0], LOSS_BAND[1]);
+      return Object.assign({}, t, {
+        trial_num: i + 1,
+        order_group: GROUP,
+        prompt: promptOrder[i],
+        condition: (t.ai ? "AI" : "Solo") + (t.win ? "+" : "-"),
+        prompt_id: PROMPTS.indexOf(promptOrder[i]),
+        viewers: VIEWERS,
+        avg_ref: AVG_REF,
+        likes
+      });
+    });
+
+    /**********************************
+     Helpers
+    ***********************************/
+    function escapeHtml(s) {
+      return String(s || "").replace(/[&<>"']/g, c =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+    function lastWrite() {
+      const rows = jsPsych.data.get().filter({ phase: "profile_write" }).values();
+      return rows[rows.length - 1] || {};
+    }
+
+    /**********************************
+     Trial builders
+    ***********************************/
+    function writeTrial(t) {
+      return {
+        type: ProfileWritePlugin,
+        prompt_text: t.prompt,
+        ai_available: !!t.ai,
+        min_chars: MIN_CHARS,
+        system_prompt: AI_SYSTEM_PROMPT,
+        meta: {
+          trial_num: t.trial_num, order_group: t.order_group, condition: t.condition,
+          ai_cond: t.ai, win_status: t.win, prompt_id: t.prompt_id,
+          likes: t.likes, viewers: t.viewers, avg_ref: t.avg_ref
+        }
+      };
+    }
+
+    // Variable-duration "model is working" screen with progress bar + countdown
+    function analyzingTrial(t) {
+      const dur = 2600 + Math.round(Math.random() * 3600); // ~2.6–6.2s, varies each trial
+      const msgs = [
+        "Uploading your profile…",
+        "Comparing with other 4,200 profiles…",
+        "Scoring first impressions…",
+        "Estimating likes…",
+        "Finalizing your preview…"
+      ];
+      return {
+        type: jsPsychHtmlKeyboardResponse,
+        choices: "NO_KEYS",
+        trial_duration: dur,
+        data: { phase: "analyzing", trial_num: t.trial_num, condition: t.condition,
+                ai_cond: t.ai, win_status: t.win, analysis_ms: dur },
+        stimulus: `
+          <div class="app-screen analyze">
+            <div class="app-chrome">${BRAND}<div class="app-step">Analyzing</div></div>
+            <div class="app-body">
+              <div class="analyze-spinner">${HEART}</div>
+              <div id="an-msg" class="analyze-msg">${msgs[0]}</div>
+              <div class="analyze-bar"><span id="an-bar"></span></div>
+              <div class="analyze-pct"><span id="an-pct">0</span>% &middot; <span id="an-sec"></span>s left</div>
+              <div class="analyze-sub">Estimating how your profile will perform…</div>
+            </div>
+          </div>`,
+        on_load: function () {
+          const bar = document.getElementById("an-bar");
+          const pct = document.getElementById("an-pct");
+          const sec = document.getElementById("an-sec");
+          const msg = document.getElementById("an-msg");
+          const t0 = performance.now();
+          requestAnimationFrame(() => { bar.style.transition = `width ${dur}ms linear`; bar.style.width = "100%"; });
+          const iv = setInterval(() => {
+            const e = Math.min(1, (performance.now() - t0) / dur);
+            pct.textContent = Math.round(e * 100);
+            sec.textContent = Math.max(0, Math.ceil((dur - (performance.now() - t0)) / 1000));
+            msg.textContent = msgs[Math.min(msgs.length - 1, Math.floor(e * msgs.length))];
+            if (e >= 1) clearInterval(iv);
+          }, 80);
+        }
+      };
+    }
+
+    function outcomeTrial(t) {
+      const above = t.likes >= t.avg_ref;
+      const pct = (n) => Math.min(100, Math.round((n / OUT_SCALE) * 100));
+      return {
+        type: jsPsychHtmlButtonResponse,
+        choices: ["Continue"],
+        stimulus: `
+          <div class="app-screen outcome">
+            <div class="app-chrome">${BRAND}<div class="app-step">Your result</div></div>
+            <div class="app-body">
+              <div class="outcome-hearts">${HEART}</div>
+              <div class="outcome-count">${t.likes}</div>
+              <div class="outcome-label">likes on your profile</div>
+              <div class="outcome-badge ${above ? "up" : "down"}">${above ? "Above average" : "Below average"}</div>
+              <div class="outcome-compare">
+                <div class="oc-row"><span>You</span><div class="oc-track"><span style="width:${pct(t.likes)}%"></span></div><b>${t.likes}</b></div>
+                <div class="oc-row"><span>Typical</span><div class="oc-track"><span class="muted" style="width:${pct(t.avg_ref)}%"></span></div><b>${t.avg_ref}</b></div>
+              </div>
+              <div class="outcome-sub">${t.viewers} people saw your profile</div>
+            </div>
+          </div>`,
+        data: { phase: "outcome", trial_num: t.trial_num, condition: t.condition,
+                ai_cond: t.ai, win_status: t.win, likes: t.likes, avg_ref: t.avg_ref }
+      };
+    }
+
+    function slider(name, prompt, lo, hi) {
+      return `
+        <div class="regret-item">
+          <div class="regret-prompt">${prompt}</div>
+          <div class="regret-row">
+            <input class="regret-range" type="range" name="${name}" id="${name}" min="0" max="100" step="1" value="0" data-moved="0" />
+            <div class="regret-value-pill"><span id="${name}_val">0</span></div>
+          </div>
+          <div class="regret-ends"><span>${lo || "Not at all"}</span><span>${hi || "Extremely"}</span></div>
+        </div>`;
+    }
+    function openText(name, prompt) {
+      return `
+        <div class="regret-item regret-open">
+          <div class="regret-prompt">${prompt}</div>
+          <textarea name="${name}" rows="2"></textarea>
+        </div>`;
+    }
+
+    function ratingsTrial(t) {
+      return {
+        type: jsPsychSurveyHtmlForm,
+        button_label: "Continue",
+        html: function () {
+          const w = lastWrite();
+          const used = !!w.ai_used;
+          let h = `<div class="regret-card">
+            <div class="regret-title">A few quick questions</div>
+            <div class="regret-meta">
+              Your response to <b>“${escapeHtml(t.prompt)}”</b>:
+              <div class="pw-quote">${escapeHtml(w.response_text)}</div>
+              It received <b>${t.likes}</b> likes (typical ≈ ${t.avg_ref}).
+            </div>`;
+          h += slider("regret_response", "How much do you <b>regret the response you submitted</b>?");
+          h += slider("wish_written_differently", "How much do you <b>wish you had written it differently</b>?");
+          h += openText("wish_change_text", "What specifically, if anything, would you change?");
+          h += slider("self_responsibility", "How much does this result feel like <b>your own doing</b>?", "Not my doing", "Entirely my doing");
+          h += slider("justification", "How <b>justifiable or defensible</b> was the way you produced this response?");
+          h += slider("ownership", "How much did this response <b>feel like yours</b>?");
+          h += slider("perceived_quality", "How <b>good</b> did you think your response was?", "Very poor", "Very good");
+          h += slider("authenticity", "How well did this response <b>capture your true self</b>?");
+          h += slider("difficulty", "How <b>difficult</b> was this prompt?", "Very easy", "Very difficult");
+          if (t.ai && used) {
+            h += slider("regret_relied_ai", "How much do you <b>regret relying on the AI assistant</b>?");
+            h += slider("ai_helpful", "How <b>helpful</b> was the AI assistant?");
+            h += slider("ai_satisfying", "How <b>satisfying</b> was using the AI assistant?");
+          } else if (t.ai && !used) {
+            h += slider("wish_used_ai", "The assistant was available but you didn't use it. How much do you <b>wish you had</b>?");
+          } else {
+            h += slider("wish_used_ai", "How much do you <b>wish you'd had an AI assistant</b> for this one?");
+          }
+          if (t.win) h += slider("pride", "How <b>proud</b> are you of this result?");
+          h += `</div>`;
+          return h;
+        },
+        on_load: function () {
+          const btn = document.querySelector(".jspsych-btn");
+          const sliders = Array.from(document.querySelectorAll('input[type="range"]'));
+          const requiredText = document.querySelector('textarea[name="wish_change_text"]');
+          const ready = () => {
+            const slidersOk = !REQUIRE_SLIDER_MOVEMENT || sliders.every(s => s.dataset.moved === "1");
+            const textOk = !requiredText || requiredText.value.trim().length > 0;
+            return slidersOk && textOk;
+          };
+          const update = () => {
+            sliders.forEach(s => { const v = document.getElementById(s.id + "_val"); if (v) v.textContent = s.value; });
+            btn.disabled = !ready();
+          };
+          btn.disabled = true;
+          sliders.forEach(s => {
+            const handler = () => { s.dataset.moved = "1"; update(); };
+            s.addEventListener("input", handler);
+            s.addEventListener("change", handler);
+          });
+          if (requiredText) requiredText.addEventListener("input", update);
+          update();
+        },
+        data: { phase: "ratings", trial_num: t.trial_num, condition: t.condition,
+                ai_cond: t.ai, win_status: t.win, prompt_id: t.prompt_id, likes: t.likes },
+        on_finish: function (data) {
+          const w = lastWrite();
+          data.response_text = w.response_text;
+          data.ai_used = !!w.ai_used;
+          data.ai_num_user_msgs = w.ai_num_user_msgs;
+          const r = data.response || {};
+          Object.keys(r).forEach(k => {
+            const v = r[k];
+            data[k] = /^-?\d+$/.test(String(v)) ? Number(v) : v;
+          });
+        }
+      };
+    }
+
+    /**********************************
+     Build timeline
+    ***********************************/
+    let timeline = [];
+    timeline.push(consent);
+    timeline.push(comprehension_loop);
+    timeline.push({
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `<div class="instr-wrap"><div class="instr-title">Let's begin</div>
+        <div class="instr-text"><p>Round 1 of 4 is next. Write in your own voice and have fun with it.</p></div></div>`,
+      choices: ["Start"]
+    });
+
+    ASSIGNED.forEach(t => {
+      timeline.push(writeTrial(t));
+      timeline.push(analyzingTrial(t));
+      timeline.push(outcomeTrial(t));
+      timeline.push(ratingsTrial(t));
+    });
+
+    timeline.push(feedback_demographics);
+
+    if (SAVE_LOCAL_BACKUP) {
+      timeline.push({
+        type: jsPsychHtmlKeyboardResponse,
+        trial_duration: 10,
+        stimulus: "",
+        on_finish: function () {
+          const ts = new Date().toISOString().replace(/[:.]/g, "-");
+          jsPsych.data.get().localSave("csv", `dating_pilot_${PROLIFIC_PID}_${ts}.csv`);
+        }
+      });
+    }
+
+    timeline.push({
+      type: jsPsychPipe,
+      action: "save",
+      experiment_id: DATAPIPE_EXPERIMENT_ID,
+      filename: function () {
+        const ts = new Date().toISOString().replace(/[:.]/g, "-");
+        return `dating_pilot_pid-${PROLIFIC_PID}_sess-${SESSION_ID}_${ts}.csv`;
+      },
+      data_string: function () { return jsPsych.data.get().csv(); }
+    });
+
+    timeline.push({
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `<div class="instr-wrap"><div class="instr-title">All done — thank you!</div>
+        <div class="instr-text"><p>Press any key to return to Prolific and complete your submission.</p></div></div>`,
+      on_finish: function () { window.location.href = PROLIFIC_COMPLETE_URL; }
+    });
+
+    jsPsych.run(timeline);
+  </script>
+</html>
