@@ -1,7 +1,7 @@
 # macOS
 .DS_Store
 Thumbs.db
-
+ 
 # R / RStudio
 .RData
 .Rhistory
@@ -10,29 +10,30 @@ Thumbs.db
 *.Rproj
 .Renviron
 processing_session_info.txt
-
+ 
 # Python
 *.pyc
 __pycache__/
 .ipynb_checkpoints/
-
+ 
 # Editors / IDEs
 .vscode/
 .idea/
 *.swp
-
+ 
 # Office temp / lock files
 ~$*
 *.log
-
+ 
 # Data
 data/raw/
 data/dating_pilot_*.csv
 data/data_raw.csv
 data/data_clean*.csv
 data/pid_mapping.csv
-
+ 
 # Secrets / tokens
 .env
 *api_key*
 *apikey*
+ 
