@@ -1,0 +1,167 @@
+---
+output:
+  reprex::reprex_document:
+    venue: "gh"
+    advertise: FALSE
+    session_info: TRUE
+    style: TRUE
+    comment: "#;-)"
+    tidyverse_quiet: FALSE
+    std_out_err: TRUE
+knit: reprex::reprex_render
+---
+
+<!--
+processing_dating_pilot.rmd
+===========================
+Data-processing pipeline for the dating-profile AI x regret pilot.
+-> data_clean_dating_pilot.csv
+-->
+
+```{r}
+if(!suppressWarnings(require(pacman))){install.packages("pacman");library("pacman")}
+p_load(tidyverse, jsonlite)
+```
+
+```{r}
+raw_dir <- "/Users/alikhan/Desktop/dating profile process/data/raw"
+files   <- list.files(raw_dir, pattern = "\\.csv$", full.names = TRUE)
+
+data_raw <- files |>
+  map(~ read_csv(.x, col_types = cols(.default = col_character()))) |>
+  bind_rows()
+```
+
+```{r}
+anon_map <- data_raw |>
+  distinct(prolific_pid) |>
+  arrange(prolific_pid) |>
+  mutate(anon_id = sprintf("P%04d", row_number())) |>
+  tibble::deframe()
+
+anonymize_pid <- function(df) {
+  df |> mutate(prolific_pid = unname(anon_map[prolific_pid]))
+}
+```
+
+```{r}
+# comprehension check
+comp_attempts <- data_raw |>
+  filter(trial_type == "survey-multi-choice") |>
+  mutate(trial_index = as.integer(trial_index)) |>
+  arrange(prolific_pid, trial_index) |>
+  group_by(prolific_pid) |>
+  summarise(
+    comp_attempts      = n(),
+    comp_passed        = any(comprehension_correct %in% "TRUE"),
+    comp_tries_to_pass = {
+      idx <- which(comprehension_correct %in% "TRUE")
+      if (length(idx) == 0) NA_integer_ else min(idx)
+    },
+    .groups = "drop"
+  )
+```
+
+```{r}
+# demographics, no JSON parsing needed
+demographics <- data_raw |>
+  filter(phase == "demographics") |>
+  group_by(prolific_pid) |>
+  slice_tail(n = 1) |>
+  ungroup() |>
+  transmute(
+    prolific_pid,
+    age = as.integer(age),
+    gender,
+    race,
+    ethnicity,
+    ai_use_freq,
+    dating_app_use,
+    likes_believable,
+    suspicion, 
+    strategy,
+    feedback
+  )
+```
+
+```{r}
+writing <- data_raw |>
+  filter(phase == "profile_write") |>
+  transmute(
+    prolific_pid,
+    trial_num      = as.integer(trial_num),
+    response_words = as.integer(response_words),
+    response_chars = as.integer(response_chars),
+    rt_write_ms    = as.numeric(rt),
+    ai_available   = as.logical(ai_available),
+    ai_log_json
+  )
+```
+
+```{r}
+# my note: THE main clean frame. one row per trial. unlike the roulette script
+# I do NOT need lead(response, 2) -- my ratings rows already carry every slider
+# as its own column. so I just filter to phase == "ratings" and select.
+# the condition-specific DVs (pride / regret_relied_ai / ai_helpful /
+# ai_satisfying / wish_used_ai) are NA on trials where they weren't asked --
+# that's expected, so I wrap them in any_of() so a missing column never errors.
+
+rating_cols <- c(
+  "regret_response", "wish_written_differently", "wish_change_text",
+  "self_responsibility", "justification", "ownership",
+  "perceived_quality", "authenticity", "difficulty",
+  "regret_relied_ai", "ai_helpful", "ai_satisfying", "wish_used_ai", "pride"
+)
+
+data_clean_dating_pilot <- data_raw |>
+  filter(phase == "ratings") |>
+  select(
+    prolific_pid, order_group, trial_num, condition, ai_cond, win_status,
+    prompt_id, likes, response_text, ai_used, ai_num_user_msgs,
+    any_of(rating_cols)
+  ) |>
+  #
+  mutate(
+    trial_num        = as.integer(trial_num),
+    likes            = as.integer(likes),
+    prompt_id        = as.integer(prompt_id),
+    order_group      = factor(order_group),
+    ai_used          = as.logical(ai_used),
+    ai_num_user_msgs = as.integer(ai_num_user_msgs),
+    across(any_of(rating_cols), as.numeric)
+  ) |>
+  # 0/1 flags ->
+  mutate(
+    ai_cond    = factor(ifelse(ai_cond == "1", "AI", "Solo"), levels = c("Solo", "AI")),
+    win_status = factor(ifelse(win_status == "1", "Win", "Loss"), levels = c("Loss", "Win"))
+  ) |>
+  arrange(prolific_pid, trial_num) |>
+
+  left_join(writing,   by = c("prolific_pid", "trial_num")) |>
+  left_join(comp_attempts, by = "prolific_pid") |>
+  left_join(demographics,  by = "prolific_pid")
+```
+
+```{r}
+# Claude: count AI chat turns from the saved log
+safe_fromJSON <- function(x) tryCatch(fromJSON(x), error = function(e) NULL)
+
+data_clean_dating_pilot <- data_clean_dating_pilot |>
+  mutate(
+    ai_log          = map(ai_log_json, safe_fromJSON),
+    ai_n_turns      = map_int(ai_log, ~ if (is.null(.x) || length(.x) == 0) 0L else nrow(as.data.frame(.x))),
+    ai_n_user_turns = map_int(ai_log, ~ {
+      if (is.null(.x)) return(0L)
+      d <- as.data.frame(.x)
+      if (is.null(d$role)) 0L else sum(d$role == "user")
+    })
+  ) |>
+  select(-ai_log) 
+```
+
+# Session Info
+```{r}
+# session info
+sessionInfo() |>
+  capture.output("processing_session_info.txt")
+```
