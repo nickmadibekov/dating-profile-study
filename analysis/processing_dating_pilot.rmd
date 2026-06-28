@@ -24,7 +24,7 @@ p_load(tidyverse, jsonlite)
 ```
 
 ```{r}
-raw_dir <- "/Users/alikhan/Desktop/dating profile process/data/raw"
+raw_dir <- ".../data/raw"
 files   <- list.files(raw_dir, pattern = "\\.csv$", full.names = TRUE)
 
 data_raw <- files |>
