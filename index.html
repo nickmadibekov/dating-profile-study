@@ -473,6 +473,7 @@
             const handler = () => { s.dataset.moved = "1"; update(); };
             s.addEventListener("input", handler);
             s.addEventListener("change", handler);
+            s.addEventListener("pointerup", handler);
           });
           if (requiredText) requiredText.addEventListener("input", update);
           update();
