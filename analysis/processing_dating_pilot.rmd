@@ -99,13 +99,6 @@ writing <- data_raw |>
 ```
 
 ```{r}
-# my note: THE main clean frame. one row per trial. unlike the roulette script
-# I do NOT need lead(response, 2) -- my ratings rows already carry every slider
-# as its own column. so I just filter to phase == "ratings" and select.
-# the condition-specific DVs (pride / regret_relied_ai / ai_helpful /
-# ai_satisfying / wish_used_ai) are NA on trials where they weren't asked --
-# that's expected, so I wrap them in any_of() so a missing column never errors.
-
 rating_cols <- c(
   "regret_response", "wish_written_differently", "wish_change_text",
   "self_responsibility", "justification", "ownership",
