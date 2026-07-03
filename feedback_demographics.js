@@ -25,31 +25,82 @@ const feedback_demographics = {
         <textarea name="strategy" id="strategy" rows="3" style="width:100%;"></textarea>
       </div>
 
-      <!-- AI familiarity -->
+       <!-- AI use -->
       <div style="margin-bottom:2em;">
         <div style="margin-bottom:0.5em;">
-          In the past <strong>12 months</strong>, how often have you used AI writing tools (e.g., ChatGPT) to help write things?
+          In the past <strong>month</strong>, how often have you used AI tools (e.g., ChatGPT) for <strong>work or school tasks</strong> (e.g., writing, coding, research)?
         </div>
-        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_use_freq" value="Never"> Never</label>
-        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_use_freq" value="A few times"> A few times</label>
-        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_use_freq" value="About once a month"> About once a month</label>
-        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_use_freq" value="About once a week"> About once a week</label>
-        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_use_freq" value="Daily or almost daily"> Daily or almost daily</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_work" value="Not at all"> Not at all</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_work" value="Once or twice"> Once or twice</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_work" value="A few times"> A few times</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_work" value="About once a week"> About once a week</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_work" value="Several times a week"> Several times a week</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_work" value="Daily or almost daily"> Daily or almost daily</label>
       </div>
 
-      <!-- Dating app use -->
       <div style="margin-bottom:2em;">
-        <div style="margin-bottom:0.5em;">Have you used dating apps (e.g., Hinge, Bumble, Tinder)?</div>
-        <label style="display:block; margin:0.25em 0;"><input type="radio" name="dating_app_use" value="Never"> Never</label>
-        <label style="display:block; margin:0.25em 0;"><input type="radio" name="dating_app_use" value="In the past"> In the past</label>
-        <label style="display:block; margin:0.25em 0;"><input type="radio" name="dating_app_use" value="Currently"> Currently</label>
+        <div style="margin-bottom:0.5em;">
+          In the past <strong>month</strong>, how often have you used AI tools (e.g., ChatGPT) for <strong>dating apps</strong> (e.g., profiles, messages, openers)?
+        </div>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_dating" value="Not at all"> Not at all</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_dating" value="Once or twice"> Once or twice</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_dating" value="A few times"> A few times</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_dating" value="About once a week"> About once a week</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_dating" value="Several times a week"> Several times a week</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_dating" value="Daily or almost daily"> Daily or almost daily</label>
+      </div>
+
+      <div style="margin-bottom:2em;">
+        <div style="margin-bottom:0.5em;">
+          In the past <strong>month</strong>, how often have you used AI tools (e.g., ChatGPT) in your <strong>romantic relationship</strong> (e.g., texting or talking with a partner)?
+        </div>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_romantic" value="Not at all"> Not at all</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_romantic" value="Once or twice"> Once or twice</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_romantic" value="A few times"> A few times</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_romantic" value="About once a week"> About once a week</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_romantic" value="Several times a week"> Several times a week</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_romantic" value="Daily or almost daily"> Daily or almost daily</label>
+      </div>
+
+      <div style="margin-bottom:2em;">
+        <div style="margin-bottom:0.5em;">
+          In the past <strong>month</strong>, how often have you used AI tools (e.g., ChatGPT) for <strong>companionship</strong> (e.g., talking to an AI for company or emotional support)?
+        </div>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_companion" value="Not at all"> Not at all</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_companion" value="Once or twice"> Once or twice</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_companion" value="A few times"> A few times</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_companion" value="About once a week"> About once a week</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_companion" value="Several times a week"> Several times a week</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_freq_companion" value="Daily or almost daily"> Daily or almost daily</label>
+      </div>
+
+      <!-- General AI trust (shown to everyone) -->
+      <div style="margin-bottom:2em;">
+        <div style="margin-bottom:0.5em;">
+          In general, how much do you <strong>trust the AI's judgment</strong> in these kinds of contexts?
+        </div>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_trust" value="Not at all"> Not at all</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_trust" value="Slightly"> Slightly</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_trust" value="Moderately"> Moderately</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_trust" value="Very much"> Very much</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_trust" value="Completely"> Completely</label>
+      </div>
+
+       <!-- Dating app use -->
+      <div style="margin-bottom:2em;">
+        <div style="margin-bottom:0.5em;">In the past <strong>month</strong>, how often have you used dating apps (e.g., Hinge, Bumble, Tinder)?</div>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="dating_app_use" value="Not at all"> Not at all</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="dating_app_use" value="Once or twice"> Once or twice</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="dating_app_use" value="A few times"> A few times</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="dating_app_use" value="About once a week"> About once a week</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="dating_app_use" value="Several times a week"> Several times a week</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="dating_app_use" value="Daily or almost daily"> Daily or almost daily</label>
       </div>
 
       <!-- General feedback -->
       <div style="margin-bottom:2em;">
         <label for="feedback"><strong>Any feedback about the study?</strong></label><br>
-        <textarea name="feedback" id="feedback" rows="3" style="width:100%;"
-          placeholder="Optional."></textarea>
+          <textarea name="feedback" id="feedback" rows="3" style="width:100%;"></textarea>
       </div>
 
       <!-- Demographics (standard grid) -->
@@ -95,7 +146,11 @@ const feedback_demographics = {
     out.likes_believable = r.likes_believable;
     out.suspicion = r.suspicion;
     out.strategy = r.strategy;
-    out.ai_use_freq = r.ai_use_freq;
+    out.ai_freq_work = r.ai_freq_work;
+    out.ai_freq_dating = r.ai_freq_dating;
+    out.ai_freq_romantic = r.ai_freq_romantic;
+    out.ai_freq_companion = r.ai_freq_companion;
+    out.ai_trust = r.ai_trust;
     out.dating_app_use = r.dating_app_use;
     out.feedback = r.feedback;
     out.age = parseInt(r.age);

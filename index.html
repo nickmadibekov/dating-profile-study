@@ -144,18 +144,24 @@
       .regret-item{ padding:14px; border-radius:14px; background:#fbfbfd; border:1px solid var(--line); margin:12px 0; }
       .regret-prompt{ margin:0 0 10px; font-weight:600; line-height:1.3; }
       .regret-row{ display:flex; gap:12px; align-items:center; }
-      .regret-value-pill{ min-width:52px; padding:6px 10px; border-radius:999px; text-align:center;
-        font-variant-numeric:tabular-nums; font-weight:800; color:#fff;
+      .regret-value-pill { min-width:52px; padding:6px 10px; border-radius:999px; text-align:center;
+        font-variant-numeric:tabular-nums; font-weight:800; color:#7a7577;
+        background:rgba(36,27,29,.10); }
+      .regret-range[data-moved="1"] ~ .regret-value-pill { color:#fff;
         background:linear-gradient(135deg,var(--accent),var(--accent2)); }
       .regret-ends{ display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:var(--muted); }
       .regret-hint{ margin-top:12px; font-size:13px; color:var(--muted); }
       .regret-open textarea{ width:100%; box-sizing:border-box; padding:10px; border-radius:12px;
         border:1px solid var(--line); font:inherit; font-size:14px; resize:vertical; }
       .regret-range{ -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:999px; background:rgba(36,27,29,.16); outline:none; }
-      .regret-range::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%;
-        background:linear-gradient(135deg,var(--accent),var(--accent2)); border:2px solid #fff; box-shadow:0 6px 14px rgba(255,77,109,.4); cursor:pointer; }
-      .regret-range::-moz-range-thumb{ width:20px; height:20px; border-radius:50%;
-        background:var(--accent); border:2px solid #fff; box-shadow:0 6px 14px rgba(255,77,109,.4); cursor:pointer; }
+      .regret-range::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%;
+        background:#c9c6c7; border:2px solid #fff; box-shadow:0 4px 10px rgba(0,0,0,.18); cursor:pointer; }
+      .regret-range::-moz-range-thumb { width:20px; height:20px; border-radius:50%;
+        background:#c9c6c7; border:2px solid #fff; box-shadow:0 4px 10px rgba(0,0,0,.18); cursor:pointer; }
+      .regret-range[data-moved="1"]::-webkit-slider-thumb {
+        background:linear-gradient(135deg,var(--accent),var(--accent2)); box-shadow:0 6px 14px rgba(255,77,109,.4); }
+      .regret-range[data-moved="1"]::-moz-range-thumb {
+        background:var(--accent); box-shadow:0 6px 14px rgba(255,77,109,.4); }
     </style>
   </head>
 
@@ -185,7 +191,7 @@
       "You are a friendly writing assistant helping someone write a short, authentic dating-app profile answer. " +
       "You can offer a couple of short options and brief feedback. Keep replies concise and conversational. " +
       "Write in plain text only — do NOT use Markdown: no **bold**, no headers (#), no backticks, no asterisks for bullets. " +
-      "If you give options, write them as short numbered lines (1. 2.) or plain sentences.";
+      "If you give options, write them as short numbered lines or plain sentences.";
 
     async function getAssistantReply(messages, systemPrompt) {
       if (AI_CONFIG.mode === "mock") {
@@ -434,34 +440,41 @@
               It received <b>${t.likes}</b> likes (typical ≈ ${t.avg_ref}).
             </div>`;
           h += slider("regret_response", "How much do you <b>regret the response you submitted</b>?");
+          h += openText("regret_what_text", "What specifically, if anything, do you regret?");
+          h += slider("pride", "How <b>proud</b> are you of the response you submitted?");
+          h += slider("satisfaction", "How <b>satisfied</b> are you with this result?");
+          h += slider("disappointment", "How <b>disappointed</b> are you with this result?");
+
           h += slider("wish_written_differently", "How much do you <b>wish you had written it differently</b>?");
           h += openText("wish_change_text", "What specifically, if anything, would you change?");
           h += slider("self_responsibility", "How much does this result feel like <b>your own doing</b>?", "Not my doing", "Entirely my doing");
-          h += slider("justification", "How <b>justifiable or defensible</b> was the way you produced this response?");
-          h += slider("ownership", "How much did this response <b>feel like yours</b>?");
+          h += slider("justification", "If someone questioned how you wrote this, how <b>easily could you explain your reasoning</b>?", "Couldn't explain", "Could explain fully");
           h += slider("perceived_quality", "How <b>good</b> did you think your response was?", "Very poor", "Very good");
           h += slider("authenticity", "How well did this response <b>capture your true self</b>?");
           h += slider("difficulty", "How <b>difficult</b> was this prompt?", "Very easy", "Very difficult");
+
           if (t.ai && used) {
             h += slider("regret_relied_ai", "How much do you <b>regret relying on the AI assistant</b>?");
             h += slider("ai_helpful", "How <b>helpful</b> was the AI assistant?");
             h += slider("ai_satisfying", "How <b>satisfying</b> was using the AI assistant?");
           } else if (t.ai && !used) {
-            h += slider("wish_used_ai", "The assistant was available but you didn't use it. How much do you <b>wish you had</b>?");
+            h += slider("wish_used_ai_declined", "The assistant was available but you didn't use it. How much do you <b>wish you had</b>?");
           } else {
-            h += slider("wish_used_ai", "How much do you <b>wish you'd had an AI assistant</b> for this one?");
+            h += slider("wish_used_ai_unavailable", "How much do you <b>wish you'd had an AI assistant</b> for this one?");
           }
-          if (t.win) h += slider("pride", "How <b>proud</b> are you of this result?");
           h += `</div>`;
           return h;
         },
         on_load: function () {
           const btn = document.querySelector(".jspsych-btn");
           const sliders = Array.from(document.querySelectorAll('input[type="range"]'));
-          const requiredText = document.querySelector('textarea[name="wish_change_text"]');
+          const MIN_TEXT = 2;  // minimum characters required in each open-text box, maybe for NA?
+          const requiredTexts = Array.from(
+            document.querySelectorAll('textarea[name="wish_change_text"], textarea[name="regret_what_text"]')
+          );
           const ready = () => {
             const slidersOk = !REQUIRE_SLIDER_MOVEMENT || sliders.every(s => s.dataset.moved === "1");
-            const textOk = !requiredText || requiredText.value.trim().length > 0;
+            const textOk = requiredTexts.every(t => t.value.trim().length >= MIN_TEXT);
             return slidersOk && textOk;
           };
           const update = () => {
@@ -475,7 +488,7 @@
             s.addEventListener("change", handler);
             s.addEventListener("pointerup", handler);
           });
-          if (requiredText) requiredText.addEventListener("input", update);
+          requiredTexts.forEach(t => t.addEventListener("input", update));
           update();
         },
         data: { phase: "ratings", trial_num: t.trial_num, condition: t.condition,
