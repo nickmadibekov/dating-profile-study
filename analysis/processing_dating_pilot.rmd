@@ -75,7 +75,11 @@ demographics <- data_raw |>
     gender,
     race,
     ethnicity,
-    ai_use_freq,
+    ai_freq_work,
+    ai_freq_dating,
+    ai_freq_romantic,
+    ai_freq_companion,
+    ai_trust,
     dating_app_use,
     likes_believable,
     suspicion, 
@@ -100,10 +104,13 @@ writing <- data_raw |>
 
 ```{r}
 rating_cols <- c(
-  "regret_response", "wish_written_differently", "wish_change_text",
-  "self_responsibility", "justification", "ownership",
+  "regret_response", "regret_what_text",
+  "pride", "satisfaction", "disappointment",
+  "wish_written_differently", "wish_change_text",
+  "self_responsibility", "justification",
   "perceived_quality", "authenticity", "difficulty",
-  "regret_relied_ai", "ai_helpful", "ai_satisfying", "wish_used_ai", "pride"
+  "regret_relied_ai", "ai_helpful", "ai_satisfying",
+  "wish_used_ai_declined", "wish_used_ai_unavailable"
 )
 
 data_clean_dating_pilot <- data_raw |>
