@@ -24,7 +24,7 @@ p_load(tidyverse, jsonlite)
 ```
 
 ```{r}
-raw_dir <- ".../data/raw"
+raw_dir <- "/Users/alikhan/Desktop/dating-profile-study/data/raw" # ".../data/raw"
 files   <- list.files(raw_dir, pattern = "\\.csv$", full.names = TRUE)
 
 data_raw <- files |>
@@ -53,9 +53,9 @@ comp_attempts <- data_raw |>
   group_by(prolific_pid) |>
   summarise(
     comp_attempts      = n(),
-    comp_passed        = any(comprehension_correct %in% "TRUE"),
+    comp_passed        = any(comprehension_correct %in% "true"),
     comp_tries_to_pass = {
-      idx <- which(comprehension_correct %in% "TRUE")
+      idx <- which(comprehension_correct %in% "true")
       if (length(idx) == 0) NA_integer_ else min(idx)
     },
     .groups = "drop"
@@ -104,9 +104,9 @@ writing <- data_raw |>
 
 ```{r}
 rating_cols <- c(
-  "regret_response", "regret_what_text",
+  "regret_response",
   "pride", "satisfaction", "disappointment",
-  "wish_written_differently", "wish_change_text",
+  "wish_written_differently",
   "self_responsibility", "justification",
   "perceived_quality", "authenticity", "difficulty",
   "regret_relied_ai", "ai_helpful", "ai_satisfying",
@@ -118,6 +118,7 @@ data_clean_dating_pilot <- data_raw |>
   select(
     prolific_pid, order_group, trial_num, condition, ai_cond, win_status,
     prompt_id, likes, response_text, ai_used, ai_num_user_msgs,
+    regret_what_text, wish_change_text,
     any_of(rating_cols)
   ) |>
   #
@@ -158,6 +159,34 @@ data_clean_dating_pilot <- data_clean_dating_pilot |>
   ) |>
   select(-ai_log) 
 ```
+
+# sumbitted response contains AI's suggestions or not?
+contains_ai_text <- function(response, log_json, min_chars = 12) {
+  if (is.na(response) || is.na(log_json) || response == "") return(NA)
+  parsed <- tryCatch(fromJSON(log_json), error = function(e) NULL)
+  if (is.null(parsed)) return(NA)
+  d <- as.data.frame(parsed)
+  if (is.null(d$role) || is.null(d$content)) return(NA)
+  ai_msgs <- d$content[d$role == "assistant"]
+  ai_msgs <- ai_msgs[nchar(ai_msgs) >= min_chars]
+  if (length(ai_msgs) == 0) return(FALSE)
+  r <- tolower(trimws(response))
+  any(vapply(ai_msgs, function(m) {
+    a <- tolower(trimws(m))
+    grepl(a, r, fixed = TRUE) || grepl(r, a, fixed = TRUE)
+  }, logical(1)))
+}
+
+data_clean_dating_pilot <- data_clean_dating_pilot |>
+  mutate(
+    ai_text_contained = ifelse(
+      ai_used %in% TRUE,
+      mapply(contains_ai_text, response_text, ai_log_json),
+      NA
+    )
+  )
+  
+write_csv(anonymize_pid(data_clean_dating_pilot), "/Users/alikhan/Desktop/dating-profile-study/data/clean/data_clean_dating_pilot.csv") # ".../data/clean//data_clean_dating_pilot.csv"
 
 # Session Info
 ```{r}
