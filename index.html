@@ -13,6 +13,12 @@
     <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
     <link href="https://unpkg.com/jspsych@8.2.2/css/jspsych.css" rel="stylesheet" />
 
+    <!-- Roundtable API Script -->
+    <script
+        src="https://cdn.roundtable.ai/v1/rt.js"
+        data-site-key="pub-Mjb3I3iRqxP1fbFGR2hQ">
+    </script>
+
     <!-- helper files (same folder as this index.html) -->
     <script src="consent.js"></script>
     <script src="instructions.js"></script>
@@ -171,9 +177,9 @@
     /**********************************
      CONFIG
     ***********************************/
-    const DATAPIPE_EXPERIMENT_ID = "REPLACE_WITH_DATAPIPE_ID";
-    const PROLIFIC_COMPLETION_CODE = "REPLACE_WITH_COMPLETION_CODE";
-    const SAVE_LOCAL_BACKUP = true;          // also download a local CSV (handy while piloting)
+    const DATAPIPE_EXPERIMENT_ID = "lAH1cvyx7k63";
+    const PROLIFIC_COMPLETION_CODE = "C1AUMWP2";
+    const SAVE_LOCAL_BACKUP = false;          // also download a local CSV 
     const REQUIRE_SLIDER_MOVEMENT = true;    // must move every slider before continuing
     const MIN_CHARS = 15;                    // minimum response length before submit enables
 
@@ -553,9 +559,48 @@
     });
 
     timeline.push({
+      type: jsPsychHtmlButtonResponse,
+      choices: ["I understand — continue to Prolific"],
+      stimulus: `
+        <div class="app-screen" style="max-width:600px;">
+          <div class="app-chrome">${BRAND}<div class="app-step">Debrief</div></div>
+          <div class="app-body" style="text-align:left;">
+            <div class="instr-title" style="text-align:center; margin-bottom:14px;">Thank you — a note about this study</div>
+
+            <p style="line-height:1.6; margin:12px 0;">
+              Thank you so much for taking part. Your time and effort genuinely help our research, and we're grateful for it.
+            </p>
+
+            <p style="line-height:1.6; margin:12px 0;">
+              <b>What this study was really about.</b> We're studying how people feel about their decisions — in particular, how <b>regret</b> and related feelings change when a choice is made with the help of AI versus on your own.
+            </p>
+
+            <div class="instr-note" style="margin:16px 0;">
+              <b>Important:</b> the “likes” you saw were <b>not real</b> and were <b>not</b> a judgment of what you wrote. They were pre-set by us in advance and were the same regardless of your responses. Please don't take any of the results as feedback on you or your writing — they were part of the study design, not a real evaluation.
+            </div>
+
+            <p style="line-height:1.6; margin:12px 0;">
+              We used this approach because reactions to outcomes are most natural when people aren't told the outcomes are pre-arranged. We're sorry for the small deception, and we hope this explanation clears things up.
+            </p>
+
+            <p style="line-height:1.6; margin:12px 0;">
+              <b>You did great</b>, and we truly appreciate your participation. If you have any questions or concerns, please reach out to Kate Petrova at
+              <a href="mailto:kpetrova@stanford.edu">kpetrova@stanford.edu</a>.
+            </p>
+
+            <p style="line-height:1.6; margin:16px 0 4px; text-align:center; color:rgba(36,27,29,.6);">
+              When you're ready, click below to return to Prolific and complete your submission.
+            </p>
+          </div>
+        </div>`
+    });
+
+    timeline.push({
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: `<div class="instr-wrap"><div class="instr-title">All done — thank you!</div>
-        <div class="instr-text"><p>Press any key to return to Prolific and complete your submission.</p></div></div>`,
+      choices: "NO_KEYS",
+      trial_duration: 1200,
+      stimulus: `<div class="instr-wrap"><div class="instr-title">Returning to Prolific…</div>
+        <div class="instr-text"><p>One moment.</p></div></div>`,
       on_finish: function () { window.location.href = PROLIFIC_COMPLETE_URL; }
     });
 
