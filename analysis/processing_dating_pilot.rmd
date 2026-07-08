@@ -107,7 +107,7 @@ rating_cols <- c(
   "regret_response",
   "pride", "satisfaction", "disappointment",
   "wish_written_differently",
-  "self_responsibility", "justification",
+  "self_responsibility", "effort",
   "perceived_quality", "authenticity", "difficulty",
   "regret_relied_ai", "ai_helpful", "ai_satisfying",
   "wish_used_ai_declined", "wish_used_ai_unavailable"
