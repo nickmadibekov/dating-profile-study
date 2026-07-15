@@ -26,9 +26,8 @@
        <div class="instr-note">There's no right or wrong amount to use it, and no expectation either way.</div>`,
     ),
     page(
-      `<p>After you submit each response, our model will estimate how your answer would perform with real users, shown as a number of <b>“likes”</b> out of the people who saw it.</p>
-       <p>Some answers will land <b>above</b> the typical range and some <b>below</b> — that's completely normal. The estimate reflects the model, not a judgment of you.</p>`,
-      "Your “likes” estimate"
+      `<p>Once you submit, a <b>separate scoring model</b> — not the writing assistant — evaluates your finished profile. It was trained on millions of real dating-app profiles and how they performed, and it predicts how appealing your answer is as an <b>appeal score from 1 to 10</b>, personalized to your preferences.</p>
+       <p>This scoring model is the same on every round, whether or not you used the writing assistant. Some answers score above average and some below, and it reflects writing style as the model sees it, not a judgment of you.</p>`,
     ),
     page(
       `<p>After each estimate, we'll ask you a few quick questions about how you feel about that round.</p>
@@ -56,7 +55,7 @@
       { prompt: "You'll write short responses to dating-profile prompts.", options: ["True", "False"], required: true },
       { prompt: "On some rounds, an optional AI assistant is available in a chat box.", options: ["True", "False"], required: true },
       { prompt: "You must use the AI whenever it is available.", options: ["True", "False"], required: true },
-      { prompt: "After each response, you'll see an estimate of how your answer might perform (in “likes”).", options: ["True", "False"], required: true }
+      { prompt: "After each response, you'll see an AI appeal score from 1 to 10.", options: ["True", "False"], required: true }
     ],
     on_finish: function (data) {
       data.comprehension_correct =

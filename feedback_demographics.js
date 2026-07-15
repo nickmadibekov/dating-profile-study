@@ -7,12 +7,12 @@ const feedback_demographics = {
       <!-- Believability / suspicion (manipulation check) -->
       <div style="margin-bottom:2em;">
         <div style="margin-bottom:0.5em;">
-          <strong>While doing the task, how believable did the “likes” estimates feel to you?</strong>
+          <strong>While doing the task, how believable did the appeal scores feel to you?</strong>
         </div>
-        <label style="display:block; margin:0.25em 0;"><input type="radio" name="likes_believable" value="Very believable"> Very believable</label>
-        <label style="display:block; margin:0.25em 0;"><input type="radio" name="likes_believable" value="Somewhat believable"> Somewhat believable</label>
-        <label style="display:block; margin:0.25em 0;"><input type="radio" name="likes_believable" value="Not very believable"> Not very believable</label>
-        <label style="display:block; margin:0.25em 0;"><input type="radio" name="likes_believable" value="Not believable at all"> Not believable at all</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_score_believable" value="Very believable"> Very believable</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_score_believable" value="Somewhat believable"> Somewhat believable</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_score_believable" value="Not very believable"> Not very believable</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="ai_score_believable" value="Not believable at all"> Not believable at all</label>
       </div>
 
       <div style="margin-bottom:2em;">
@@ -97,6 +97,20 @@ const feedback_demographics = {
         <label style="display:block; margin:0.25em 0;"><input type="radio" name="dating_app_use" value="Daily or almost daily"> Daily or almost daily</label>
       </div>
 
+      <!-- Relationship status (+ conditional duration) -->
+      <div style="margin-bottom:2em;">
+        <div style="margin-bottom:0.5em;"><strong>What is your current relationship status?</strong></div>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="relationship_status" value="Single"> Single</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="relationship_status" value="In a relationship"> In a relationship</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="relationship_status" value="Engaged"> Engaged</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="relationship_status" value="Married"> Married</label>
+        <label style="display:block; margin:0.25em 0;"><input type="radio" name="relationship_status" value="It's complicated"> It's complicated</label>
+        <div id="rel_duration_wrap" style="display:none; margin-top:10px;">
+          How long have you been together?
+          <input type="text" name="relationship_duration" placeholder="e.g., 2 years" style="width:60%;">
+        </div>
+      </div>
+
       <!-- General feedback -->
       <div style="margin-bottom:2em;">
         <label for="feedback"><strong>Any feedback about the study?</strong></label><br>
@@ -139,11 +153,20 @@ const feedback_demographics = {
 
   button_label: 'Finish',
 
+  on_load: function () {
+    const wrap = document.getElementById("rel_duration_wrap");
+    document.querySelectorAll('input[name="relationship_status"]').forEach(radio => {
+      radio.addEventListener("change", () => {
+        wrap.style.display = (radio.value !== "Single") ? "block" : "none";
+      });
+    });
+  },
+
   on_finish: function (data) {
     const r = data.response;
     const out = {};
     out.phase = "demographics";
-    out.likes_believable = r.likes_believable;
+    out.ai_score_believable = r.ai_score_believable;
     out.suspicion = r.suspicion;
     out.strategy = r.strategy;
     out.ai_freq_work = r.ai_freq_work;
@@ -153,6 +176,8 @@ const feedback_demographics = {
     out.ai_trust = r.ai_trust;
     out.dating_app_use = r.dating_app_use;
     out.feedback = r.feedback;
+    out.relationship_status = r.relationship_status;
+    out.relationship_duration = r.relationship_duration || "";
     out.age = parseInt(r.age);
     out.gender = (r.gender === 'Other' || typeof r.gender === 'undefined') ? r.other_gender : r.gender;
     out.race = (typeof r.race === 'undefined') ? r.other_race : r.race;

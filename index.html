@@ -24,6 +24,7 @@
     <script src="instructions.js"></script>
     <script src="profile-write-plugin.js"></script>
     <script src="feedback_demographics.js"></script>
+    <script src="preference-plugin.js"></script>
 
     <style>
       :root{
@@ -168,6 +169,23 @@
         background:linear-gradient(135deg,var(--accent),var(--accent2)); box-shadow:0 6px 14px rgba(255,77,109,.4); }
       .regret-range[data-moved="1"]::-moz-range-thumb {
         background:var(--accent); box-shadow:0 6px 14px rgba(255,77,109,.4); }
+
+      /* ---------- preference tiles ---------- */
+      .pref-title{ font-size:22px; font-weight:800; text-align:center; margin:6px 0 4px; }
+      .pref-subtitle{ text-align:center; color:var(--muted); margin-bottom:16px; font-size:14px; }
+      .pref-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+      .pref-tile{ font:inherit; cursor:pointer; background:#fff; border:1.5px solid var(--line);
+        border-radius:16px; padding:18px 10px; text-align:center; transition:transform .06s, border-color .15s, box-shadow .15s; }
+      .pref-tile:hover{ box-shadow:0 8px 20px rgba(255,77,109,.15); transform:translateY(-1px); }
+      .pref-tile.selected{ border-color:var(--accent); box-shadow:0 0 0 3px var(--soft); }
+      .pref-emoji{ font-size:30px; line-height:1; margin-bottom:8px; }
+      .pref-label{ font-weight:700; font-size:14px; line-height:1.25; }
+      .pref-grid-multi{ grid-template-columns:repeat(3,1fr); gap:8px; max-height:52vh; overflow-y:auto; padding:2px; }
+      .pref-grid-multi .pref-tile{ padding:12px 6px; }
+      .pref-grid-multi .pref-emoji{ font-size:24px; margin-bottom:4px; }
+      .pref-grid-multi .pref-label{ font-size:12px; }
+      .pref-disabled{ opacity:.4; pointer-events:none; }
+      .pref-counter{ text-align:center; color:var(--muted); font-size:13px; margin:12px 0 10px; }
     </style>
   </head>
 
@@ -287,27 +305,25 @@
     jsPsych.data.addProperties({ order_group: GROUP });
     const SEQUENCE = GROUPS[GROUP];
 
-    // Outcome (likes) framing — social comparison, content-independent
-    const VIEWERS = 50;
-    const AVG_REF = 7;
-    const WIN_BAND = [12, 19];
-    const LOSS_BAND = [1, 4];
-    const OUT_SCALE = 20; // bar scaling max
+    // Outcome 
+    const AVG_REF = 5.5;          // average appeal score
+    const WIN_BAND = [7, 10];      // above-average score
+    const LOSS_BAND = [1, 4];     // below-average score
+    const OUT_SCALE = 10;         // score is out of 10
     const randInt = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
 
     // 4 trials, 4 prompts: each prompt used once, randomly assigned to a slot per participant.
     const promptOrder = jsPsych.randomization.shuffle(PROMPTS.slice());
     const ASSIGNED = SEQUENCE.map((t, i) => {
-      const likes = t.win ? randInt(WIN_BAND[0], WIN_BAND[1]) : randInt(LOSS_BAND[0], LOSS_BAND[1]);
+      const ai_score = t.win ? randInt(WIN_BAND[0], WIN_BAND[1]) : randInt(LOSS_BAND[0], LOSS_BAND[1]);
       return Object.assign({}, t, {
         trial_num: i + 1,
         order_group: GROUP,
         prompt: promptOrder[i],
         condition: (t.ai ? "AI" : "Solo") + (t.win ? "+" : "-"),
         prompt_id: PROMPTS.indexOf(promptOrder[i]),
-        viewers: VIEWERS,
         avg_ref: AVG_REF,
-        likes
+        ai_score
       });
     });
 
@@ -336,7 +352,7 @@
         meta: {
           trial_num: t.trial_num, order_group: t.order_group, condition: t.condition,
           ai_cond: t.ai, win_status: t.win, prompt_id: t.prompt_id,
-          likes: t.likes, viewers: t.viewers, avg_ref: t.avg_ref
+          ai_score: t.ai_score, avg_ref: t.avg_ref
         }
       };
     }
@@ -345,11 +361,11 @@
     function analyzingTrial(t) {
       const dur = 2600 + Math.round(Math.random() * 3600); // ~2.6–6.2s, varies each trial
       const msgs = [
-        "Uploading your profile…",
-        "Comparing with other 4,200 profiles…",
-        "Scoring first impressions…",
-        "Estimating likes…",
-        "Finalizing your preview…"
+        "Scoring your profile…",
+        "Comparing with thousands of real dating profiles…",
+        "Weighting against your preferences…",
+        "Estimating your appeal score…",
+        "Finalizing…"
       ];
       return {
         type: jsPsychHtmlKeyboardResponse,
@@ -387,7 +403,7 @@
     }
 
     function outcomeTrial(t) {
-      const above = t.likes >= t.avg_ref;
+      const above = t.ai_score >= t.avg_ref;
       const pct = (n) => Math.min(100, Math.round((n / OUT_SCALE) * 100));
       return {
         type: jsPsychHtmlButtonResponse,
@@ -397,18 +413,18 @@
             <div class="app-chrome">${BRAND}<div class="app-step">Your result</div></div>
             <div class="app-body">
               <div class="outcome-hearts">${HEART}</div>
-              <div class="outcome-count">${t.likes}</div>
-              <div class="outcome-label">likes on your profile</div>
+              <div class="outcome-count">${t.ai_score}<span style="font-size:24px;color:var(--muted);"> / 10</span></div>
+              <div class="outcome-label">AI appeal score</div>
               <div class="outcome-badge ${above ? "up" : "down"}">${above ? "Above average" : "Below average"}</div>
               <div class="outcome-compare">
-                <div class="oc-row"><span>You</span><div class="oc-track"><span style="width:${pct(t.likes)}%"></span></div><b>${t.likes}</b></div>
-                <div class="oc-row"><span>Typical</span><div class="oc-track"><span class="muted" style="width:${pct(t.avg_ref)}%"></span></div><b>${t.avg_ref}</b></div>
+                <div class="oc-row"><span>You</span><div class="oc-track"><span style="width:${pct(t.ai_score)}%"></span></div><b>${t.ai_score}</b></div>
+                <div class="oc-row"><span>Average</span><div class="oc-track"><span class="muted" style="width:${pct(t.avg_ref)}%"></span></div><b>${t.avg_ref}</b></div>
               </div>
-              <div class="outcome-sub">${t.viewers} people saw your profile</div>
+              <div class="outcome-sub">Predicted from 5,250,000 real dating profiles</div>
             </div>
           </div>`,
         data: { phase: "outcome", trial_num: t.trial_num, condition: t.condition,
-                ai_cond: t.ai, win_status: t.win, likes: t.likes, avg_ref: t.avg_ref }
+                ai_cond: t.ai, win_status: t.win, ai_score: t.ai_score, avg_ref: t.avg_ref }
       };
     }
 
@@ -443,7 +459,7 @@
             <div class="regret-meta">
               Your response to <b>“${escapeHtml(t.prompt)}”</b>:
               <div class="pw-quote">${escapeHtml(w.response_text)}</div>
-              It received <b>${t.likes}</b> likes (typical ≈ ${t.avg_ref}).
+              It scored <b>${t.ai_score}</b> / 10 (average ≈ ${t.avg_ref}).
             </div>`;
           h += slider("regret_response", "How much do you <b>regret the response you submitted</b>?");
           h += openText("regret_what_text", "What specifically, if anything, do you regret?");
@@ -498,7 +514,7 @@
           update();
         },
         data: { phase: "ratings", trial_num: t.trial_num, condition: t.condition,
-                ai_cond: t.ai, win_status: t.win, prompt_id: t.prompt_id, likes: t.likes },
+                ai_cond: t.ai, win_status: t.win, prompt_id: t.prompt_id, ai_score: t.ai_score },
         on_finish: function (data) {
           const w = lastWrite();
           data.response_text = w.response_text;
@@ -519,6 +535,89 @@
     let timeline = [];
     timeline.push(consent);
     timeline.push(comprehension_loop);
+
+    // ---- model-tuning intro ----
+    timeline.push({
+      type: jsPsychHtmlButtonResponse,
+      choices: ["Start tuning"],
+      stimulus: `<div class="app-screen"><div class="app-chrome">${BRAND}<div class="app-step">Tuning</div></div>
+        <div class="app-body" style="text-align:center;">
+          <div class="instr-title">First, let's tune the model to you</div>
+          <div class="instr-text"><p>Your appeal score is personalized. Answer a few quick questions about who you're trying to attract, and the model will calibrate its predictions to <b>your</b> dating goals.</p></div>
+        </div></div>`
+    });
+
+    const PREFS = [
+      { field:"pref_looking_for", step:"1 of 5", title:"What are you looking for?", subtitle:"All good if it changes.", options:[
+        {emoji:"💘",label:"Long-term partner",value:"long_term"},
+        {emoji:"😍",label:"Long-term, but short-term OK",value:"long_ok_short"},
+        {emoji:"🥂",label:"Short-term, but long-term OK",value:"short_ok_long"},
+        {emoji:"🎉",label:"Short-term fun",value:"short_term"},
+        {emoji:"👋",label:"New friends",value:"friends"},
+        {emoji:"🤔",label:"Still figuring it out",value:"unsure"} ]},
+      { field:"pref_interested_in", step:"2 of 5", title:"Who are you interested in?", options:[
+        {emoji:"👨",label:"Men",value:"men"},
+        {emoji:"👩",label:"Women",value:"women"},
+        {emoji:"🌈",label:"Everyone",value:"everyone"} ]},
+      { field:"pref_age_range", step:"3 of 5", title:"What age range are you looking for?", options:[
+        {emoji:"",label:"18–25",value:"18_25"},
+        {emoji:"",label:"26–32",value:"26_32"},
+        {emoji:"",label:"33–40",value:"33_40"},
+        {emoji:"",label:"41+",value:"41_plus"} ]},
+      { field:"pref_first_draw", step:"4 of 5", title:"What draws you to someone first?", options:[
+        {emoji:"😂",label:"Humor",value:"humor"},
+        {emoji:"🧠",label:"Intelligence",value:"intelligence"},
+        {emoji:"💪",label:"Ambition",value:"ambition"},
+        {emoji:"❤️",label:"Kindness",value:"kindness"},
+        {emoji:"✨",label:"Vibe",value:"vibe"},
+        {emoji:"🎨",label:"Creativity",value:"creativity"} ]}
+      { field:"pref_interests", step:"5 of 5", title:"Pick your interests", subtitle:"Choose up to 5 — this helps the model to be more accurate.",
+        max_select: 5, min_select: 3, options:[
+        {emoji:"🎬",label:"Movies",value:"movies"},        {emoji:"🎵",label:"Music",value:"music"},
+        {emoji:"📚",label:"Reading",value:"reading"},       {emoji:"🎮",label:"Gaming",value:"gaming"},
+        {emoji:"⚽",label:"Sports",value:"sports"},          {emoji:"🏋️",label:"Fitness",value:"fitness"},
+        {emoji:"🥾",label:"Hiking",value:"hiking"},          {emoji:"✈️",label:"Travel",value:"travel"},
+        {emoji:"🍳",label:"Cooking",value:"cooking"},        {emoji:"🍷",label:"Wine & dining",value:"dining"},
+        {emoji:"☕",label:"Coffee",value:"coffee"},          {emoji:"🎨",label:"Art",value:"art"},
+        {emoji:"📷",label:"Photography",value:"photography"},{emoji:"💃",label:"Dancing",value:"dancing"},
+        {emoji:"🐕",label:"Dogs",value:"dogs"},              {emoji:"🐈",label:"Cats",value:"cats"},
+        {emoji:"🌱",label:"Nature",value:"nature"},          {emoji:"🧘",label:"Yoga",value:"yoga"},
+        {emoji:"🎤",label:"Comedy",value:"comedy"},          {emoji:"🍸",label:"Nightlife",value:"nightlife"},
+        {emoji:"🧩",label:"Board games",value:"boardgames"}, {emoji:"💻",label:"Tech",value:"tech"},
+        {emoji:"📈",label:"Investing",value:"investing"},    {emoji:"🌍",label:"Politics",value:"politics"},
+        {emoji:"🧪",label:"Science",value:"science"},        {emoji:"🎸",label:"Concerts",value:"concerts"},
+        {emoji:"🏖️",label:"Beach",value:"beach"},           {emoji:"⛷️",label:"Skiing",value:"skiing"},
+        {emoji:"🚴",label:"Cycling",value:"cycling"},        {emoji:"🧗",label:"Climbing",value:"climbing"},
+        {emoji:"🎭",label:"Theater",value:"theater"},        {emoji:"✍️",label:"Writing",value:"writing"},
+        {emoji:"🐾",label:"Volunteering",value:"volunteering"},{emoji:"🔥",label:"Spontaneity",value:"spontaneity"},
+        {emoji:"🛋️",label:"Cozy nights",value:"cozy"},       {emoji:"🎯",label:"Trying new things",value:"novelty"}
+      ]}
+    ];
+    PREFS.forEach(p => timeline.push({
+      type: PreferenceTilePlugin, title:p.title, subtitle:p.subtitle||"", field:p.field, options:p.options, step:p.step
+    }));
+
+    // ---- calibrating screen (sells personalization) ----
+    timeline.push({
+      type: jsPsychHtmlKeyboardResponse,
+      choices: "NO_KEYS",
+      trial_duration: 3200,
+      stimulus: `<div class="app-screen analyze"><div class="app-chrome">${BRAND}<div class="app-step">Calibrating</div></div>
+        <div class="app-body">
+          <div class="analyze-spinner">${HEART}</div>
+          <div id="cal-msg" class="analyze-msg">Calibrating the model to your preferences…</div>
+          <div class="analyze-bar"><span id="cal-bar"></span></div>
+          <div class="analyze-sub">Personalizing your appeal score…</div>
+        </div></div>`,
+      on_load: function () {
+        const bar = document.getElementById("cal-bar");
+        requestAnimationFrame(() => { bar.style.transition = "width 3200ms linear"; bar.style.width = "100%"; });
+        const msgs = ["Calibrating to your preferences…","Loading dating-profile dataset…","Tuning for your target audience…","Almost ready…"];
+        const el = document.getElementById("cal-msg"); let i = 0;
+        const iv = setInterval(() => { i++; if (i < msgs.length) el.textContent = msgs[i]; else clearInterval(iv); }, 800);
+      }
+    });
+
     timeline.push({
       type: jsPsychHtmlButtonResponse,
       stimulus: `<div class="instr-wrap"><div class="instr-title">Let's begin</div>
@@ -576,7 +675,7 @@
             </p>
 
             <div class="instr-note" style="margin:16px 0;">
-              <b>Important:</b> the “likes” you saw were <b>not real</b> and were <b>not</b> a judgment of what you wrote. They were pre-set by us in advance and were the same regardless of your responses. Please don't take any of the results as feedback on you or your writing — they were part of the study design, not a real evaluation.
+              <b>Important:</b> the <b>appeal scores</b> you saw were <b>not real</b> and were <b>not</b> a judgment of what you wrote. They were pre-set by us in advance and were the same regardless of your responses. Please don't take any of the results as feedback on you or your writing — they were part of the study design, not a real evaluation.
             </div>
 
             <p style="line-height:1.6; margin:12px 0;">

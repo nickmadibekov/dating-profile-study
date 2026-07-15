@@ -60,7 +60,7 @@
           <div class="ai-head">✍️ AI assistant</div>
           <div id="pw-chat" class="chat" aria-live="polite"></div>
           <div class="chat-input">
-            <textarea id="pw-ai-input" rows="2" placeholder="Ask for help… e.g. “make this funnier”"></textarea>
+            <textarea id="pw-ai-input" rows="2" placeholder="Message the AI…”"></textarea>
             <button id="pw-ai-send" class="chat-send" type="button">Send</button>
           </div>
         </div>` : "";
