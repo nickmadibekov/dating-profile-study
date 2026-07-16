@@ -24,7 +24,7 @@
       "Welcome"
     ),
     page(
-       `<p>We're studying how people write short dating-profile answers, and how different writing approaches tend to land. In this session you'll write a few profile answers and see how an automated tool rates them.</p
+       `<p>We're studying how people write short dating-profile answers, and how different writing approaches tend to land. In this session you'll write a few profile answers and see how an automated tool rates them.</p>
        <p>You'll complete <b>4 short rounds</b>. In each round you'll see a profile prompt (the kind you'd find on an app like Hinge) and write a short response to it.</p>`,
       "What you'll do"
     ),
@@ -35,7 +35,7 @@
        <div class="instr-note">There's no right or wrong amount to use it, and no expectation either way.</div>`,
     ),
     page(
-      `<p>Once you submit, a separate scoring model (not the writing assistant) evaluates your finished profile. It was trained on 250,129 real Hinge and Tinder profiles and how they performed. It was trained on 250,129 real Hinge and Tinder profiles and how they performed. In testing, its predictions matched real-world outcomes over 91% of the time, so the score is a strong estimate of how your profile would actually land.</p>
+      `<p>Once you submit, a separate scoring model (not the writing assistant) evaluates your finished profile. It was trained on 250,129 real Hinge and Tinder profiles and how they performed. In testing, its predictions matched real-world outcomes over 91% of the time, so the score is a strong estimate of how your profile would actually land.</p>
        <p>The model gives an <b>appeal score from 1 to 10</b>, personalized to your preferences. Some answers score above average and some below, and it reflects writing style as the model sees it.</p>`,
     ),
     page(

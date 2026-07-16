@@ -95,12 +95,12 @@ demographics <- data_raw |>
   filter(phase == "preference") |>
   group_by(prolific_pid) |>
   summarise(
-    pref_looking_for  = na.omit(pref_looking_for)[1],
-    pref_interested_in= na.omit(pref_interested_in)[1],
-    pref_age_min      = na.omit(pref_age_min)[1],
-    pref_age_max      = na.omit(pref_age_max)[1],
-    pref_values       = na.omit(pref_values)[1],
-    pref_interests    = na.omit(pref_interests)[1],
+    pref_looking_for   = na.omit(pref_looking_for)[1],
+    pref_interested_in = na.omit(pref_interested_in)[1],
+    pref_age_min       = na.omit(pref_age_min)[1],
+    pref_age_max       = na.omit(pref_age_max)[1],
+    pref_first_draw    = na.omit(pref_first_draw)[1],
+    pref_interests     = na.omit(pref_interests)[1],
     .groups = "drop"
   )
 ```
