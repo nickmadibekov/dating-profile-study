@@ -25,6 +25,7 @@
     <script src="profile-write-plugin.js"></script>
     <script src="feedback_demographics.js"></script>
     <script src="preference-plugin.js"></script>
+    <script src="range-slider-plugin.js"></script>
 
     <style>
       :root{
@@ -186,6 +187,13 @@
       .pref-grid-multi .pref-label{ font-size:12px; }
       .pref-disabled{ opacity:.4; pointer-events:none; }
       .pref-counter{ text-align:center; color:var(--muted); font-size:13px; margin:12px 0 10px; }
+      .rs-value{ text-align:center; font-size:22px; font-weight:800; margin:18px 0 20px; color:var(--accent); }
+      .rs-wrap{ position:relative; height:36px; margin:0 6px; }
+      .rs-track{ position:absolute; top:15px; left:0; right:0; height:6px; border-radius:999px; background:rgba(36,27,29,.14); }
+      .rs-fill{ position:absolute; top:15px; height:6px; border-radius:999px; background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+      .rs-wrap input[type=range]{ position:absolute; top:0; left:0; width:100%; margin:0; background:none; pointer-events:none; -webkit-appearance:none; appearance:none; height:36px; }
+      .rs-wrap input[type=range]::-webkit-slider-thumb{ pointer-events:auto; -webkit-appearance:none; width:26px; height:26px; border-radius:50%; background:#fff; border:2px solid var(--accent); box-shadow:0 4px 12px rgba(255,77,109,.4); cursor:pointer; margin-top:5px; }
+      .rs-wrap input[type=range]::-moz-range-thumb{ pointer-events:auto; width:26px; height:26px; border-radius:50%; background:#fff; border:2px solid var(--accent); box-shadow:0 4px 12px rgba(255,77,109,.4); cursor:pointer; }
     </style>
   </head>
 
@@ -559,11 +567,6 @@
         {emoji:"👨",label:"Men",value:"men"},
         {emoji:"👩",label:"Women",value:"women"},
         {emoji:"🌈",label:"Everyone",value:"everyone"} ]},
-      { field:"pref_age_range", step:"3 of 5", title:"What age range are you looking for?", options:[
-        {emoji:"",label:"18–25",value:"18_25"},
-        {emoji:"",label:"26–32",value:"26_32"},
-        {emoji:"",label:"33–40",value:"33_40"},
-        {emoji:"",label:"41+",value:"41_plus"} ]},
       { field:"pref_first_draw", step:"4 of 5", title:"What draws you to someone first?", options:[
         {emoji:"😂",label:"Humor",value:"humor"},
         {emoji:"🧠",label:"Intelligence",value:"intelligence"},
@@ -593,9 +596,28 @@
         {emoji:"🛋️",label:"Cozy nights",value:"cozy"},       {emoji:"🎯",label:"Trying new things",value:"novelty"}
       ]}
     ];
-    PREFS.forEach(p => timeline.push({
-      type: PreferenceTilePlugin, title:p.title, subtitle:p.subtitle||"", field:p.field, options:p.options, step:p.step
-    }));
+    const pushPref = (p) => timeline.push({
+      type: PreferenceTilePlugin,
+      title: p.title, subtitle: p.subtitle || "", field: p.field,
+      options: p.options, step: p.step,
+      max_select: p.max_select || 1, min_select: p.min_select || 1
+    });
+
+    pushPref(PREFS[0]);   // 1 of 5: looking for
+    pushPref(PREFS[1]);   // 2 of 5: interested in
+
+    // 3 of 5: age range slider
+    timeline.push({
+      type: RangeSliderPlugin,
+      title: "What age range are you looking for?",
+      subtitle: "Drag both ends.",
+      field: "pref_age",
+      min: 18, max: 85, start_min: 24, start_max: 35,
+      step_label: "3 of 5"
+    });
+
+    pushPref(PREFS[2]);   // 4 of 5: what you value / first draw
+    pushPref(PREFS[3]);   // 5 of 5: interests
 
     // ---- calibrating screen (sells personalization) ----
     timeline.push({

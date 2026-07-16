@@ -15,7 +15,7 @@
       "Welcome"
     ),
     page(
-      `<p>We're building an early <b>model that predicts how dating-profile answers perform</b>. To train and test it, we're comparing a few different ways that people write their profile answers.</p>
+       `<p>We're studying how people write short dating-profile answers, and how different writing approaches tend to land. In this session you'll write a few profile answers and see how an automated tool rates them.</p
        <p>You'll complete <b>4 short rounds</b>. In each round you'll see a profile prompt (the kind you'd find on an app like Hinge) and write a short response to it.</p>`,
       "What you'll do"
     ),
@@ -26,8 +26,8 @@
        <div class="instr-note">There's no right or wrong amount to use it, and no expectation either way.</div>`,
     ),
     page(
-      `<p>Once you submit, a <b>separate scoring model</b> — not the writing assistant — evaluates your finished profile. It was trained on millions of real dating-app profiles and how they performed, and it predicts how appealing your answer is as an <b>appeal score from 1 to 10</b>, personalized to your preferences.</p>
-       <p>This scoring model is the same on every round, whether or not you used the writing assistant. Some answers score above average and some below, and it reflects writing style as the model sees it, not a judgment of you.</p>`,
+      `<p>Once you submit, a <b>separate scoring model</b> — not the writing assistant — evaluates your finished profile. It was trained on <b>5,250,000 real Hinge and Tinder profiles</b> and how they performed. In testing, its predicted scores closely matched real-world outcomes (correlating at <b>r = .94</b>, within one point about <b>97% of the time</b>), so the score is a strong estimate of how your profile would actually land.</p>
+       <p>The model gives an <b>appeal score from 1 to 10</b>, personalized to your preferences. It is the <b>same on every round</b>, whether or not you used the writing assistant. Some answers score above average and some below, and it reflects writing style as the model sees it.</p>`,
     ),
     page(
       `<p>After each estimate, we'll ask you a few quick questions about how you feel about that round.</p>
