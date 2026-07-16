@@ -432,7 +432,7 @@
                 <div class="oc-row"><span>You</span><div class="oc-track"><span style="width:${pct(t.ai_score)}%"></span></div><b>${t.ai_score}</b></div>
                 <div class="oc-row"><span>Average</span><div class="oc-track"><span class="muted" style="width:${pct(t.avg_ref)}%"></span></div><b>${t.avg_ref}</b></div>
               </div>
-              <div class="outcome-sub">Predicted from 5,250,000 real dating profiles</div>
+              <div class="outcome-sub">Predicted from 5,250,129 real dating profiles</div>
             </div>
           </div>`,
         data: { phase: "outcome", trial_num: t.trial_num, condition: t.condition,
@@ -636,7 +636,7 @@
     timeline.push({
       type: jsPsychHtmlKeyboardResponse,
       choices: "NO_KEYS",
-      trial_duration: 3200,
+      trial_duration: 5000,
       stimulus: `<div class="app-screen analyze"><div class="app-chrome">${BRAND}<div class="app-step">Calibrating</div></div>
         <div class="app-body">
           <div class="analyze-spinner">${HEART}</div>
@@ -646,10 +646,10 @@
         </div></div>`,
       on_load: function () {
         const bar = document.getElementById("cal-bar");
-        requestAnimationFrame(() => { bar.style.transition = "width 3200ms linear"; bar.style.width = "100%"; });
+        requestAnimationFrame(() => { bar.style.transition = "width 5000ms linear"; bar.style.width = "100%"; });
         const msgs = ["Calibrating to your preferences…","Loading dating-profile dataset…","Tuning for your target audience…","Almost ready…"];
         const el = document.getElementById("cal-msg"); let i = 0;
-        const iv = setInterval(() => { i++; if (i < msgs.length) el.textContent = msgs[i]; else clearInterval(iv); }, 800);
+        const iv = setInterval(() => { i++; if (i < msgs.length) el.textContent = msgs[i]; else clearInterval(iv); }, 1250);
       }
     });
 

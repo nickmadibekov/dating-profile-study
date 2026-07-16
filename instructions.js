@@ -35,7 +35,7 @@
        <div class="instr-note">There's no right or wrong amount to use it, and no expectation either way.</div>`,
     ),
     page(
-      `<p>Once you submit, a eparate scoring model (not the writing assistant) evaluates your finished profile. It was trained on 5,250,000 real Hinge and Tinder profiles and how they performed. In testing, its predicted scores closely matched real-world outcomes (correlating at r = .94, within one point about 97% of the time), so the score is a strong estimate of how your profile would actually land.</p>
+      `<p>Once you submit, a eparate scoring model (not the writing assistant) evaluates your finished profile. It was trained on 5,250,129 real Hinge and Tinder profiles and how they performed. In testing, its predicted scores closely matched real-world outcomes (correlating at r = .94, within one point about 97% of the time), so the score is a strong estimate of how your profile would actually land.</p>
        <p>The model gives an <b>appeal score from 1 to 10</b>, personalized to your preferences. Some answers score above average and some below, and it reflects writing style as the model sees it.</p>`,
     ),
     page(
