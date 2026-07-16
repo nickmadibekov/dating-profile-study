@@ -319,15 +319,16 @@
 
     // Outcome 
     const AVG_REF = 5.5;          // average appeal score
-    const WIN_BAND = [7, 10];      // above-average score
-    const LOSS_BAND = [1, 4];     // below-average score
+    const WIN_BAND = [7, 9];      // above-average score
+    const LOSS_BAND = [2, 4];     // below-average score
     const OUT_SCALE = 10;         // score is out of 10
     const randInt = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
 
     // 4 trials, 4 prompts: each prompt used once, randomly assigned to a slot per participant.
     const promptOrder = jsPsych.randomization.shuffle(PROMPTS.slice());
     const ASSIGNED = SEQUENCE.map((t, i) => {
-      const ai_score = t.win ? randInt(WIN_BAND[0], WIN_BAND[1]) : randInt(LOSS_BAND[0], LOSS_BAND[1]);
+      const randDec = (lo, hi) => Math.round((lo + Math.random() * (hi - lo)) * 10) / 10;
+      const ai_score = t.win ? randDec(WIN_BAND[0], WIN_BAND[1]) : randDec(LOSS_BAND[0], LOSS_BAND[1]);
       return Object.assign({}, t, {
         trial_num: i + 1,
         order_group: GROUP,
@@ -425,11 +426,11 @@
             <div class="app-chrome">${BRAND}<div class="app-step">Your result</div></div>
             <div class="app-body">
               <div class="outcome-hearts">${HEART}</div>
-              <div class="outcome-count">${t.ai_score}<span style="font-size:24px;color:var(--muted);"> / 10</span></div>
+              <div class="outcome-count">${t.ai_score.toFixed(1)}<span style="font-size:24px;color:var(--muted);"> / 10</span></div>
               <div class="outcome-label">AI appeal score</div>
               <div class="outcome-badge ${above ? "up" : "down"}">${above ? "Above average" : "Below average"}</div>
               <div class="outcome-compare">
-                <div class="oc-row"><span>You</span><div class="oc-track"><span style="width:${pct(t.ai_score)}%"></span></div><b>${t.ai_score}</b></div>
+                <div class="oc-row"><span>You</span><div class="oc-track"><span style="width:${pct(t.ai_score)}%"></span></div><b>${t.ai_score.toFixed(1)}</b></div>
                 <div class="oc-row"><span>Average</span><div class="oc-track"><span class="muted" style="width:${pct(t.avg_ref)}%"></span></div><b>${t.avg_ref}</b></div>
               </div>
               <div class="outcome-sub">Predicted from 5,250,129 real dating profiles</div>
@@ -471,7 +472,7 @@
             <div class="regret-meta">
               Your response to <b>“${escapeHtml(t.prompt)}”</b>:
               <div class="pw-quote">${escapeHtml(w.response_text)}</div>
-              It scored <b>${t.ai_score}</b> / 10 (average ≈ ${t.avg_ref}).
+              It scored <b>${t.ai_score.toFixed(1)}</b> / 10 (average ≈ ${t.avg_ref}).
             </div>`;
           h += slider("regret_response", "How much do you <b>regret the response you submitted</b>?");
           h += openText("regret_what_text", "What specifically, if anything, do you regret?");

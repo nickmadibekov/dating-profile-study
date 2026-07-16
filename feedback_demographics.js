@@ -111,6 +111,68 @@ const feedback_demographics = {
         </div>
       </div>
 
+      <!-- Contingent self-worth: Approval subscale (Crocker et al., 2003) -->
+      <div style="margin-bottom:2em;">
+        <div style="margin-bottom:0.6em;"><strong>Please rate how much you agree with each statement.</strong>
+          <div style="font-size:0.9em; color:#777;">1 = Strongly disagree &nbsp; 4 = Neutral &nbsp; 7 = Strongly agree</div>
+        </div>
+
+        <div style="margin:0.7em 0;">
+          <div style="margin-bottom:0.2em;">I don't care what other people think of me.</div>
+          <label><input type="radio" name="csw_1" value="1" required> 1</label>
+          <label><input type="radio" name="csw_1" value="2"> 2</label>
+          <label><input type="radio" name="csw_1" value="3"> 3</label>
+          <label><input type="radio" name="csw_1" value="4"> 4</label>
+          <label><input type="radio" name="csw_1" value="5"> 5</label>
+          <label><input type="radio" name="csw_1" value="6"> 6</label>
+          <label><input type="radio" name="csw_1" value="7"> 7</label>
+        </div>
+
+        <div style="margin:0.7em 0;">
+          <div style="margin-bottom:0.2em;">What others think of me has no effect on what I think about myself.</div>
+          <label><input type="radio" name="csw_2" value="1" required> 1</label>
+          <label><input type="radio" name="csw_2" value="2"> 2</label>
+          <label><input type="radio" name="csw_2" value="3"> 3</label>
+          <label><input type="radio" name="csw_2" value="4"> 4</label>
+          <label><input type="radio" name="csw_2" value="5"> 5</label>
+          <label><input type="radio" name="csw_2" value="6"> 6</label>
+          <label><input type="radio" name="csw_2" value="7"> 7</label>
+        </div>
+
+        <div style="margin:0.7em 0;">
+          <div style="margin-bottom:0.2em;">I don't care if other people have a negative opinion about me.</div>
+          <label><input type="radio" name="csw_3" value="1" required> 1</label>
+          <label><input type="radio" name="csw_3" value="2"> 2</label>
+          <label><input type="radio" name="csw_3" value="3"> 3</label>
+          <label><input type="radio" name="csw_3" value="4"> 4</label>
+          <label><input type="radio" name="csw_3" value="5"> 5</label>
+          <label><input type="radio" name="csw_3" value="6"> 6</label>
+          <label><input type="radio" name="csw_3" value="7"> 7</label>
+        </div>
+
+        <div style="margin:0.7em 0;">
+          <div style="margin-bottom:0.2em;">My self-esteem depends on the opinions others hold of me.</div>
+          <label><input type="radio" name="csw_4" value="1" required> 1</label>
+          <label><input type="radio" name="csw_4" value="2"> 2</label>
+          <label><input type="radio" name="csw_4" value="3"> 3</label>
+          <label><input type="radio" name="csw_4" value="4"> 4</label>
+          <label><input type="radio" name="csw_4" value="5"> 5</label>
+          <label><input type="radio" name="csw_4" value="6"> 6</label>
+          <label><input type="radio" name="csw_4" value="7"> 7</label>
+        </div>
+
+        <div style="margin:0.7em 0;">
+          <div style="margin-bottom:0.2em;">I can't respect myself if others don't respect me.</div>
+          <label><input type="radio" name="csw_5" value="1" required> 1</label>
+          <label><input type="radio" name="csw_5" value="2"> 2</label>
+          <label><input type="radio" name="csw_5" value="3"> 3</label>
+          <label><input type="radio" name="csw_5" value="4"> 4</label>
+          <label><input type="radio" name="csw_5" value="5"> 5</label>
+          <label><input type="radio" name="csw_5" value="6"> 6</label>
+          <label><input type="radio" name="csw_5" value="7"> 7</label>
+        </div>
+      </div>
+
       <!-- General feedback -->
       <div style="margin-bottom:2em;">
         <label for="feedback"><strong>Any feedback about the study?</strong></label><br>
@@ -178,6 +240,11 @@ const feedback_demographics = {
     out.feedback = r.feedback;
     out.relationship_status = r.relationship_status;
     out.relationship_duration = r.relationship_duration || "";
+    out.csw_1 = r.csw_1;
+    out.csw_2 = r.csw_2;
+    out.csw_3 = r.csw_3;
+    out.csw_4 = r.csw_4;
+    out.csw_5 = r.csw_5;
     out.age = parseInt(r.age);
     out.gender = (r.gender === 'Other' || typeof r.gender === 'undefined') ? r.other_gender : r.gender;
     out.race = (typeof r.race === 'undefined') ? r.other_race : r.race;

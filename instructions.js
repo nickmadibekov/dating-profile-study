@@ -44,7 +44,7 @@
       "A few questions each round"
     ),
     page(
-      `<p>Write as if you were really filling out your own profile — in your own voice. When you're ready, continue to a quick comprehension check.</p>`,
+      `<p>When you're ready, continue to a quick comprehension check.</p>`,
       "Almost ready"
     )
   ];

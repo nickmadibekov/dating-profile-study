@@ -84,7 +84,24 @@ demographics <- data_raw |>
     likes_believable,
     suspicion, 
     strategy,
-    feedback
+    feedback,
+    csw_1, csw_2, csw_3, csw_4, csw_5,
+    relationship_status,
+    relationship_duration
+  )
+
+  # prefs
+  preferences <- data_raw |>
+  filter(phase == "preference") |>
+  group_by(prolific_pid) |>
+  summarise(
+    pref_looking_for  = na.omit(pref_looking_for)[1],
+    pref_interested_in= na.omit(pref_interested_in)[1],
+    pref_age_min      = na.omit(pref_age_min)[1],
+    pref_age_max      = na.omit(pref_age_max)[1],
+    pref_values       = na.omit(pref_values)[1],
+    pref_interests    = na.omit(pref_interests)[1],
+    .groups = "drop"
   )
 ```
 
@@ -117,14 +134,14 @@ data_clean_dating_pilot <- data_raw |>
   filter(phase == "ratings") |>
   select(
     prolific_pid, order_group, trial_num, condition, ai_cond, win_status,
-    prompt_id, likes, response_text, ai_used, ai_num_user_msgs,
+    prompt_id, ai_score, response_text, ai_used, ai_num_user_msgs,
     regret_what_text, wish_change_text,
     any_of(rating_cols)
   ) |>
   #
   mutate(
     trial_num        = as.integer(trial_num),
-    likes            = as.integer(likes),
+    ai_score         = as.numeric(ai_score),
     prompt_id        = as.integer(prompt_id),
     order_group      = factor(order_group),
     ai_used          = as.logical(ai_used),
@@ -141,6 +158,15 @@ data_clean_dating_pilot <- data_raw |>
   left_join(writing,   by = c("prolific_pid", "trial_num")) |>
   left_join(comp_attempts, by = "prolific_pid") |>
   left_join(demographics,  by = "prolific_pid")
+  data_clean_dating_pilot <- data_clean_dating_pilot |>
+  mutate(
+    csw_1r = 8 - as.numeric(csw_1),
+    csw_2r = 8 - as.numeric(csw_2),
+    csw_3r = 8 - as.numeric(csw_3),
+    csw_approval = rowMeans(cbind(csw_1r, csw_2r, csw_3r,
+                                  as.numeric(csw_4), as.numeric(csw_5)))
+  )
+  left_join(preferences, by = "prolific_pid")
 ```
 
 ```{r}
