@@ -166,7 +166,7 @@ data_clean_dating_pilot <- data_clean_dating_pilot |>
     csw_2r = 8 - as.numeric(csw_2),
     csw_3r = 8 - as.numeric(csw_3),
     csw_approval = rowMeans(cbind(csw_1r, csw_2r, csw_3r,
-                                  as.numeric(csw_4), as.numeric(csw_5)))
+                                  as.numeric(csw_4), as.numeric(csw_5)), na.rm = TRUE)
   )
 ```
 
