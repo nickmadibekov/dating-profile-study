@@ -27,7 +27,7 @@
       options:    { type: PT.OBJECT, default: [] },   // [{emoji,label,value}]
       step:       { type: PT.STRING, default: "Tuning" },
       max_select: { type: PT.INT,    default: 1 },     // 1 = single (auto-advance); >1 = multi
-      min_select: { type: PT.INT,    default: 1 }      // multi mode: minimum required
+      min_select: { type: PT.INT,    default: 1 },      // multi mode: minimum required
       exclusive:  { type: PT.STRING, default: "" },   // value that clears others when picked
       collapse_to:{ type: PT.STRING, default: "" }    // if all non-exclusive picked, collapse to this value
     }
