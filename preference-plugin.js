@@ -28,6 +28,8 @@
       step:       { type: PT.STRING, default: "Tuning" },
       max_select: { type: PT.INT,    default: 1 },     // 1 = single (auto-advance); >1 = multi
       min_select: { type: PT.INT,    default: 1 }      // multi mode: minimum required
+      exclusive:  { type: PT.STRING, default: "" },   // value that clears others when picked
+      collapse_to:{ type: PT.STRING, default: "" }    // if all non-exclusive picked, collapse to this value
     }
   };
 
@@ -82,12 +84,36 @@
         const atCap = n >= trial.max_select;
         els.forEach(e => { if (!e.classList.contains("selected")) e.classList.toggle("pref-disabled", atCap); });
       };
+
+      const exclusiveVal = trial.exclusive;
+      const collapseTo   = trial.collapse_to || trial.exclusive; // default: collapse to the exclusive tile
+      const specifics = () => els.filter(e => e.getAttribute("data-value") !== exclusiveVal);
+
       els.forEach(t => t.addEventListener("click", () => {
+        const val = t.getAttribute("data-value");
         const isSel = t.classList.contains("selected");
-        if (!isSel && selected().length >= trial.max_select) return;
-        t.classList.toggle("selected");
+
+        if (exclusiveVal && val === exclusiveVal) {
+          // clicking "Everyone": clear everything else, select only it
+          els.forEach(e => e.classList.remove("selected"));
+          t.classList.add("selected");
+        } else {
+          // clicking a specific: deselect "Everyone" if it was on
+          const exEl = els.find(e => e.getAttribute("data-value") === exclusiveVal);
+          if (exEl) exEl.classList.remove("selected");
+          if (!isSel && selected().length >= trial.max_select) return;
+          t.classList.toggle("selected");
+          // if all specifics are now chosen, collapse to "Everyone"
+          if (collapseTo && specifics().every(e => e.classList.contains("selected"))) {
+            els.forEach(e => e.classList.remove("selected"));
+            const target = els.find(e => e.getAttribute("data-value") === collapseTo);
+            if (target) target.classList.add("selected");
+          }
+        }
         refresh();
       }));
+
+
       btn.addEventListener("click", () => {
         const vals = selected().map(e => e.getAttribute("data-value"));
         const data = { phase: "preference", rt: Math.round(performance.now() - start) };

@@ -563,9 +563,11 @@
         {emoji:"🎉",label:"Short-term fun",value:"short_term"},
         {emoji:"👋",label:"New friends",value:"friends"},
         {emoji:"🤔",label:"Still figuring it out",value:"unsure"} ]},
-      { field:"pref_interested_in", step:"2 of 5", title:"Who are you interested in?", options:[
+      { field:"pref_interested_in", step:"2 of 5", title:"Who are you interested in?",
+        subtitle:"Select all that apply.", max_select: 4, min_select: 1, exclusive:"everyone", options:[
         {emoji:"👨",label:"Men",value:"men"},
         {emoji:"👩",label:"Women",value:"women"},
+        {emoji:"🧑",label:"Non-binary people",value:"nonbinary"},
         {emoji:"🌈",label:"Everyone",value:"everyone"} ]},
       { field:"pref_first_draw", step:"4 of 5", title:"What draws you to someone first?", options:[
         {emoji:"😂",label:"Humor",value:"humor"},
