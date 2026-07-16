@@ -29,14 +29,14 @@
       "What you'll do"
     ),
     page(
-      `<p>On <b>some</b> rounds, an <b>AI assistant</b> will be available in a chat box next to your answer. Using it is entirely up to you — some people won't use it at all, some will use it a little, and some will use it a lot. None of these is better or more expected than the others.</p>
+      `<p>On <b>some</b> rounds, an AI assistant will be available in a chat box next to your answer. Using it is entirely up to you — some people won't use it at all, some will use it a little, and some will use it a lot. None of these is better or more expected than the others.</p>
        <p>If you do use it, use it however you normally would: a quick question, a back-and-forth, or nothing at all. Please just do whatever feels natural to you for each prompt.</p>
        <p>On <b>other</b> rounds, the AI won't be available and you'll write on your own.</p>
        <div class="instr-note">There's no right or wrong amount to use it, and no expectation either way.</div>`,
     ),
     page(
-      `<p>Once you submit, a <b>separate scoring model</b> — not the writing assistant — evaluates your finished profile. It was trained on <b>5,250,000 real Hinge and Tinder profiles</b> and how they performed. In testing, its predicted scores closely matched real-world outcomes (correlating at <b>r = .94</b>, within one point about <b>97% of the time</b>), so the score is a strong estimate of how your profile would actually land.</p>
-       <p>The model gives an <b>appeal score from 1 to 10</b>, personalized to your preferences. It is the <b>same on every round</b>, whether or not you used the writing assistant. Some answers score above average and some below, and it reflects writing style as the model sees it.</p>`,
+      `<p>Once you submit, a eparate scoring model (not the writing assistant) evaluates your finished profile. It was trained on 5,250,000 real Hinge and Tinder profiles and how they performed. In testing, its predicted scores closely matched real-world outcomes (correlating at r = .94, within one point about 97% of the time), so the score is a strong estimate of how your profile would actually land.</p>
+       <p>The model gives an <b>appeal score from 1 to 10</b>, personalized to your preferences. Some answers score above average and some below, and it reflects writing style as the model sees it.</p>`,
     ),
     page(
       `<p>After each estimate, we'll ask you a few quick questions about how you feel about that round.</p>
@@ -64,14 +64,14 @@
       { prompt: "You'll write short responses to dating-profile prompts.", options: ["True", "False"], required: true },
       { prompt: "On some rounds, an optional AI assistant is available in a chat box.", options: ["True", "False"], required: true },
       { prompt: "You must use the AI whenever it is available.", options: ["True", "False"], required: true },
-      { prompt: "After each response, you'll see an AI appeal score from 1 to 10.", options: ["True", "False"], required: true }
+      { prompt: "After each response, you'll see an AI appeal score from 0 to 10.", options: ["True", "False"], required: true }
     ],
     on_finish: function (data) {
       data.comprehension_correct =
         data.response.Q0 === "True" &&
         data.response.Q1 === "True" &&
         data.response.Q2 === "False" &&
-        data.response.Q3 === "True";
+        data.response.Q3 === "False";
     }
   };
 
