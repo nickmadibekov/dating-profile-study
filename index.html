@@ -182,6 +182,10 @@
       .pref-emoji{ font-size:30px; line-height:1; margin-bottom:8px; }
       .pref-label{ font-weight:700; font-size:14px; line-height:1.25; }
       .pref-grid-multi{ grid-template-columns:repeat(3,1fr); gap:8px; max-height:52vh; overflow-y:auto; padding:2px; }
+      .pref-grid-gender{ grid-template-columns:repeat(2, 1fr); max-height:none; overflow:visible; gap:12px; }
+      .pref-grid-gender .pref-tile{ padding:18px 10px; }
+      .pref-grid-gender .pref-emoji{ font-size:30px; margin-bottom:8px; }
+      .pref-grid-gender .pref-label{ font-size:14px; }
       .pref-grid-multi .pref-tile{ padding:12px 6px; }
       .pref-grid-multi .pref-emoji{ font-size:24px; margin-bottom:4px; }
       .pref-grid-multi .pref-label{ font-size:12px; }
@@ -564,7 +568,7 @@
         {emoji:"👋",label:"New friends",value:"friends"},
         {emoji:"🤔",label:"Still figuring it out",value:"unsure"} ]},
       { field:"pref_interested_in", step:"2 of 5", title:"Who are you interested in?",
-        subtitle:"Select all that apply.", max_select: 4, min_select: 1, exclusive:"everyone", options:[
+        subtitle:"Select all that apply.", max_select: 4, min_select: 1, exclusive:"everyone", collapse_to:"everyone", options:[
         {emoji:"👨",label:"Men",value:"men"},
         {emoji:"👩",label:"Women",value:"women"},
         {emoji:"🧑",label:"Non-binary people",value:"nonbinary"},
@@ -598,11 +602,18 @@
         {emoji:"🛋️",label:"Cozy nights",value:"cozy"},       {emoji:"🎯",label:"Trying new things",value:"novelty"}
       ]}
     ];
+
     const pushPref = (p) => timeline.push({
       type: PreferenceTilePlugin,
-      title: p.title, subtitle: p.subtitle || "", field: p.field,
-      options: p.options, step: p.step,
-      max_select: p.max_select || 1, min_select: p.min_select || 1
+      title: p.title,
+      subtitle: p.subtitle || "",
+      field: p.field,
+      options: p.options,
+      step: p.step,
+      max_select: p.max_select || 1,
+      min_select: p.min_select || 1,
+      exclusive: p.exclusive || "",
+      collapse_to: p.collapse_to || ""
     });
 
     pushPref(PREFS[0]);   // 1 of 5: looking for

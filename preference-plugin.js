@@ -51,11 +51,11 @@
           <div class="app-body">
             <div class="pref-title">${trial.title}</div>
             ${trial.subtitle ? `<div class="pref-subtitle">${trial.subtitle}</div>` : ""}
-            <div class="pref-grid ${multi ? "pref-grid-multi" : ""}">${tiles}</div>
-            ${multi ? `
+            <div class="pref-grid ${multi ? "pref-grid-multi" : ""} ${trial.field === "pref_interested_in" ? "pref-grid-gender" : ""}"> ${tiles} </div>
+            ${multi ? ` 
               <div class="pref-counter"><span id="pref-count">0</span> / ${trial.max_select} selected</div>
               <div style="text-align:center;"><button id="pref-continue" class="btn-primary" type="button" disabled>Continue</button></div>
-            ` : ""}
+              ` : ""}
           </div>
         </div>`;
 
