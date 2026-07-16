@@ -81,7 +81,7 @@ demographics <- data_raw |>
     ai_freq_companion,
     ai_trust,
     dating_app_use,
-    likes_believable,
+    ai_score_believable,
     suspicion, 
     strategy,
     feedback,
@@ -157,8 +157,10 @@ data_clean_dating_pilot <- data_raw |>
 
   left_join(writing,   by = c("prolific_pid", "trial_num")) |>
   left_join(comp_attempts, by = "prolific_pid") |>
-  left_join(demographics,  by = "prolific_pid")
-  data_clean_dating_pilot <- data_clean_dating_pilot |>
+  left_join(demographics,  by = "prolific_pid") |>
+  left_join(preferences,   by = "prolific_pid")
+
+data_clean_dating_pilot <- data_clean_dating_pilot |>
   mutate(
     csw_1r = 8 - as.numeric(csw_1),
     csw_2r = 8 - as.numeric(csw_2),
@@ -166,7 +168,6 @@ data_clean_dating_pilot <- data_raw |>
     csw_approval = rowMeans(cbind(csw_1r, csw_2r, csw_3r,
                                   as.numeric(csw_4), as.numeric(csw_5)))
   )
-  left_join(preferences, by = "prolific_pid")
 ```
 
 ```{r}
@@ -186,6 +187,7 @@ data_clean_dating_pilot <- data_clean_dating_pilot |>
   select(-ai_log) 
 ```
 
+```{r}
 # sumbitted response contains AI's suggestions or not?
 contains_ai_text <- function(response, log_json, min_chars = 12) {
   if (is.na(response) || is.na(log_json) || response == "") return(NA)
@@ -213,6 +215,7 @@ data_clean_dating_pilot <- data_clean_dating_pilot |>
   )
   
 write_csv(anonymize_pid(data_clean_dating_pilot), "/Users/alikhan/Desktop/dating-profile-study/data/clean/data_clean_dating_pilot.csv") # ".../data/clean//data_clean_dating_pilot.csv"
+```
 
 # Session Info
 ```{r}
