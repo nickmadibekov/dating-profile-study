@@ -64,7 +64,7 @@
       { prompt: "You'll write short responses to dating-profile prompts.", options: ["True", "False"], required: true },
       { prompt: "On some rounds, an optional AI assistant is available in a chat box.", options: ["True", "False"], required: true },
       { prompt: "You must use the AI whenever it is available.", options: ["True", "False"], required: true },
-      { prompt: "After each response, you'll see an AI appeal score from 0 to 10.", options: ["True", "False"], required: true }
+      { prompt: "After each response, you'll see an appeal score from 0 to 10.", options: ["True", "False"], required: true }
     ],
     on_finish: function (data) {
       data.comprehension_correct =
