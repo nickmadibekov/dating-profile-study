@@ -134,7 +134,7 @@ data_clean_dating_pilot <- data_raw |>
   filter(phase == "ratings") |>
   select(
     prolific_pid, order_group, trial_num, condition, ai_cond, win_status,
-    prompt_id, ai_score, response_text, ai_used, ai_num_user_msgs,
+    prompt_set, prompt_id, ai_score, response_text, ai_used, ai_num_user_msgs,
     regret_what_text, wish_change_text,
     any_of(rating_cols)
   ) |>

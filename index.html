@@ -347,6 +347,7 @@
         prompt: promptOrder[i],
         condition: (t.ai ? "AI" : "Solo") + (t.win ? "+" : "-"),
         prompt_id: PROMPTS.indexOf(promptOrder[i]),
+        prompt_set: PROMPT_SET,
         avg_ref: AVG_REF,
         ai_score
       });
@@ -376,7 +377,7 @@
         system_prompt: AI_SYSTEM_PROMPT,
         meta: {
           trial_num: t.trial_num, order_group: t.order_group, condition: t.condition,
-          ai_cond: t.ai, win_status: t.win, prompt_id: t.prompt_id,
+          ai_cond: t.ai, win_status: t.win, prompt_id: t.prompt_id, prompt_set: PROMPT_SET,
           ai_score: t.ai_score, avg_ref: t.avg_ref
         }
       };
@@ -539,7 +540,7 @@
           update();
         },
         data: { phase: "ratings", trial_num: t.trial_num, condition: t.condition,
-                ai_cond: t.ai, win_status: t.win, prompt_id: t.prompt_id, ai_score: t.ai_score },
+                ai_cond: t.ai, win_status: t.win, prompt_id: t.prompt_id, prompt_set: PROMPT_SET, ai_score: t.ai_score },
         on_finish: function (data) {
           const w = lastWrite();
           data.response_text = w.response_text;
