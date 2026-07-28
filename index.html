@@ -299,12 +299,24 @@
     /**********************************
      PROMPTS + 2 ORDER GROUPS (4 trials each)
     ***********************************/
-    const PROMPTS = [
-      "You'll instantly get along with me if…",
-      "The thing I overthink the most is…",
-      "My ideal Tuesday night looks like…",
-      "Something I've gotten better at lately…"
-    ];
+    const PROMPT_SETS = {
+      person: [
+        "You'll instantly get along with me if…",
+        "The thing I overthink the most is…",
+        "My ideal Tuesday night looks like…",
+        "Something I've gotten better at lately…"
+      ],
+      craft: [
+        "My best pick-up line is…",
+        "My best joke is…",
+        "My most controversial opinion is…",
+        "The hill I will die on is…"
+      ]
+    };
+    // "person" or "craft"
+    const PROMPT_SET = "craft";
+
+    const PROMPTS = PROMPT_SETS[PROMPT_SET];
 
     // Random allocation to one of two between-subjects order groups:
     //   Group 1:  AI-   Solo-  AI+   Solo+
