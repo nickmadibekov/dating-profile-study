@@ -19,6 +19,23 @@
         data-site-key="pub-Mjb3I3iRqxP1fbFGR2hQ">
     </script>
 
+    <script>
+    (function () {
+    const params = new URLSearchParams(window.location.search);
+    const pid = params.get('PROLIFIC_PID');
+    if (!pid) return;                       // no PID in URL, nothing to set
+    const send = () => {
+      if (window.setRoundtableUserId) { window.setRoundtableUserId(pid); return true; }
+      return false;
+    };
+    if (!send()) {                          // tracker not ready yet -> wait for its event
+      window.addEventListener('roundtable:ready', send, { once: true });
+    }
+    })();
+    </script>
+
+    
+
     <!-- helper files (same folder as this index.html) -->
     <script src="consent.js"></script>
     <script src="instructions.js"></script>
