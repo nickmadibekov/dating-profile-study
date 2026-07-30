@@ -24,12 +24,48 @@ p_load(tidyverse, jsonlite)
 ```
 
 ```{r}
-raw_dir <- "/Users/alikhan/Desktop/dating-profile-study/data/raw" # ".../data/raw"
-files   <- list.files(raw_dir, pattern = "\\.csv$", full.names = TRUE)
+
+# raw_dir <- "/Users/alikhan/Desktop/dating-profile-study/data/raw" # ".../data/raw"
+# files   <- list.files(raw_dir, pattern = "\\.csv$", full.names = TRUE)
+
+# data_raw <- files |>
+#  map(~ read_csv(.x, col_types = cols(.default = col_character()))) |>
+#  bind_rows()
+
+raw_dir <- "/Users/alikhan/Desktop/dating-profile-study/data/raw"
+
+CUTOFF_DATE <- as.Date("2026-07-29")   # keep files on/after this date
+KEEP_SET    <- "craft"                 # "craft", "person", or NA to keep all tagged runs
+
+all_files <- list.files(raw_dir, pattern = "\\.csv$", full.names = TRUE)
+
+# filter files by the date embedded in the DataPipe filename
+file_dates <- as.Date(stringr::str_extract(basename(all_files), "\\d{4}-\\d{2}-\\d{2}"))
+files <- all_files[!is.na(file_dates) & file_dates >= CUTOFF_DATE]
 
 data_raw <- files |>
   map(~ read_csv(.x, col_types = cols(.default = col_character()))) |>
   bind_rows()
+
+# filter rows by prompt_set (old runs have no prompt_set -> NA -> dropped)
+if (!"prompt_set" %in% names(data_raw)) {
+  stop("No prompt_set column found")
+}
+
+craft_pids <- data_raw |>
+  filter(prompt_set == KEEP_SET) |>
+  distinct(prolific_pid) |>
+  pull(prolific_pid)
+
+data_raw <- data_raw |> filter(prolific_pid %in% craft_pids)
+
+# sanity check
+cat("Files in folder:   ", length(all_files), "\n")
+cat("Files after date:  ", length(files), "\n")
+cat("Participants:", n_distinct(data_raw$prolific_pid), "\n")
+cat("Rows:", nrow(data_raw), "\n")
+print(table(data_raw$phase, useNA = "ifany"))   # <- should show all phases, not just two
+
 ```
 
 ```{r}
@@ -215,6 +251,11 @@ data_clean_dating_pilot <- data_clean_dating_pilot |>
   )
   
 write_csv(anonymize_pid(data_clean_dating_pilot), "/Users/alikhan/Desktop/dating-profile-study/data/clean/data_clean_dating_pilot.csv") # ".../data/clean//data_clean_dating_pilot.csv"
+
+# internal-only file with real Prolific IDs
+write_csv(data_clean_dating_pilot,
+          "/Users/alikhan/Desktop/dating-profile-study/data/clean/data_clean_WITH_PIDS.csv")
+
 ```
 
 # Session Info
