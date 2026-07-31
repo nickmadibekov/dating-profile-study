@@ -20,7 +20,7 @@ Data-processing pipeline for the dating-profile AI x regret pilot.
 
 ```{r}
 if(!suppressWarnings(require(pacman))){install.packages("pacman");library("pacman")}
-p_load(tidyverse, jsonlite)
+p_load(tidyverse, jsonlite, lubridate)
 ```
 
 ```{r}
@@ -139,6 +139,17 @@ demographics <- data_raw |>
     pref_interests     = na.omit(pref_interests)[1],
     .groups = "drop"
   )
+
+
+  session_times <- data_raw |>
+  mutate(ts = ymd_hms(date_iso),
+         te = as.numeric(time_elapsed)) |>
+  group_by(prolific_pid) |>
+  summarise(session_start = min(ts, na.rm = TRUE),                       # page-load time (same on all rows)
+            session_dur_s = max(te, na.rm = TRUE) / 1000,                # elapsed ms -> seconds
+            session_end   = min(ts, na.rm = TRUE) + max(te, na.rm = TRUE)/1000,  # start + elapsed
+            .groups = "drop")
+
 ```
 
 ```{r}
@@ -194,7 +205,8 @@ data_clean_dating_pilot <- data_raw |>
   left_join(writing,   by = c("prolific_pid", "trial_num")) |>
   left_join(comp_attempts, by = "prolific_pid") |>
   left_join(demographics,  by = "prolific_pid") |>
-  left_join(preferences,   by = "prolific_pid")
+  left_join(preferences,   by = "prolific_pid") |>
+  left_join(session_times, by = "prolific_pid")
 
 data_clean_dating_pilot <- data_clean_dating_pilot |>
   mutate(
