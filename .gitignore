@@ -27,6 +27,7 @@ __pycache__/
  
 # Data
 data/raw/
+data/clean/
 data/dating_pilot_*.csv
 data/data_raw.csv
 data/data_clean*.csv
