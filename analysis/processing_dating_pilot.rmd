@@ -206,7 +206,8 @@ data_clean_dating_pilot <- data_raw |>
   left_join(comp_attempts, by = "prolific_pid") |>
   left_join(demographics,  by = "prolific_pid") |>
   left_join(preferences,   by = "prolific_pid") |>
-  left_join(session_times, by = "prolific_pid")
+  left_join(session_times, by = "prolific_pid") |>
+  arrange(session_start, prolific_pid, trial_num)
 
 data_clean_dating_pilot <- data_clean_dating_pilot |>
   mutate(
@@ -261,12 +262,28 @@ data_clean_dating_pilot <- data_clean_dating_pilot |>
       NA
     )
   )
+
+# attach risk_score from the existing database, by PID
+risk_lookup <- read_csv(
+    "/Users/alikhan/Desktop/dating-profile-study/data/clean/data_merged_roundtable.csv",
+    show_col_types = FALSE) |>
+  distinct(prolific_pid, risk_score) |>
+  filter(!is.na(risk_score))
+
+data_clean_dating_pilot <- data_clean_dating_pilot |>
+  left_join(risk_lookup, by = "prolific_pid") |>
+  mutate(risk_score = coalesce(risk_score, 0),        # PIDs not in the DB (new ones) -> 0
+         sus_code   = if_else(risk_score > 0, 1L, 0L))
+
+# check: which PIDs defaulted to 0 because they're new?
+new_pids <- setdiff(unique(data_clean_dating_pilot$prolific_pid), risk_lookup$prolific_pid)
+cat("New PIDs defaulted to risk 0:", length(new_pids), "\n"); print(sort(new_pids))
   
-write_csv(anonymize_pid(data_clean_dating_pilot), "/Users/alikhan/Desktop/dating-profile-study/data/clean/data_clean_dating_pilot.csv") # ".../data/clean//data_clean_dating_pilot.csv"
+# write_csv(anonymize_pid(data_clean_dating_pilot), "/Users/alikhan/Desktop/dating-profile-study/data/clean/data_clean_dating_pilot.csv") # ".../data/clean//data_clean_dating_pilot.csv"
 
 # internal-only file with real Prolific IDs
 write_csv(data_clean_dating_pilot,
-          "/Users/alikhan/Desktop/dating-profile-study/data/clean/data_clean_WITH_PIDS.csv")
+          "/Users/alikhan/Desktop/dating-profile-study/data/clean/data_clean_PIDS_aug4.csv")
 
 ```
 
